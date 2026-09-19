@@ -6,8 +6,6 @@ Do not commit API tokens, cookies, passwords, signing keys, `local.properties`, 
 
 If a secret is ever committed, revoke or rotate it first, then remove it from the full Git history. Deleting the current file alone does not invalidate a leaked secret.
 
-## Reporting a problem
+## Support scope
 
-For a security issue, do not publish working credentials or exploit details in a public issue. Contact the repository maintainer privately through the GitHub account that owns this repository and include a minimal reproduction, affected version, and mitigation suggestion.
-
-This project is a personal open-source project and does not promise a response time or a security support level.
+This personal project does not provide a user support or vulnerability response service, and does not promise fixes or response times. Do not publish credentials or personal data. Use the HTTP service only on trusted networks.
