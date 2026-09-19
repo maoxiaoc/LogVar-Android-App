@@ -1,0 +1,16 @@
+# Android build outputs and local files
+.gradle/
+.gradle-user/
+.kotlin/
+.toolchain/
+**/build/
+**/.cxx/
+**/node_modules/
+*.apk
+*.aab
+*.jks
+*.keystore
+local.properties
+release-signing.properties
+*.log
+*.hprof

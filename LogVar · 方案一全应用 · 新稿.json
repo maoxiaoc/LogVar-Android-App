@@ -1,0 +1,2892 @@
+{
+  "groups": [
+    {
+      "id": "g1",
+      "x": 0,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p1",
+          "kind": "topAppBar",
+          "label": "LogVar",
+          "icon": null,
+          "variant": "filled",
+          "icon2": "settings",
+          "actions": {
+            "icon2": {
+              "to": "settings",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g2",
+      "x": 24,
+      "y": 94,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p2",
+          "kind": "text",
+          "label": "手机弹幕服务器",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g3",
+      "x": 16,
+      "y": 132,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p3",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 314,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 24,
+          "radiusBottom": 24
+        }
+      ]
+    },
+    {
+      "id": "g4",
+      "x": 24,
+      "y": 152,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p4",
+          "kind": "text",
+          "label": "● 服务运行中",
+          "icon": null,
+          "variant": "filled",
+          "size": 24
+        }
+      ]
+    },
+    {
+      "id": "g5",
+      "x": 24,
+      "y": 192,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p5",
+          "kind": "text",
+          "label": "正在监听局域网请求",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g6",
+      "x": 24,
+      "y": 236,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p6",
+          "kind": "text",
+          "label": "API 地址",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g7",
+      "x": 24,
+      "y": 264,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p7",
+          "kind": "text",
+          "label": "http://192.168.1.105:9321/••••••",
+          "icon": null,
+          "variant": "filled",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "id": "g8",
+      "x": 16,
+      "y": 304,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p8",
+          "kind": "button",
+          "label": "复制 API 地址",
+          "icon": "content_copy",
+          "variant": "filled",
+          "size": 380
+        }
+      ]
+    },
+    {
+      "id": "g9",
+      "x": 24,
+      "y": 378,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p9",
+          "kind": "button",
+          "label": "启动服务",
+          "icon": null,
+          "variant": "outlined",
+          "size": 174,
+          "note": "运行中禁用；停止时启用。"
+        }
+      ]
+    },
+    {
+      "id": "g10",
+      "x": 214,
+      "y": 378,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p10",
+          "kind": "button",
+          "label": "停止服务",
+          "icon": null,
+          "variant": "outlined",
+          "size": 174,
+          "action": {
+            "to": "stop",
+            "transition": "fade"
+          },
+          "note": "危险操作文字使用红色；弹出确认后才能停止。"
+        }
+      ]
+    },
+    {
+      "id": "g11",
+      "x": 24,
+      "y": 476,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p11",
+          "kind": "text",
+          "label": "局域网状态",
+          "icon": null,
+          "variant": "filled",
+          "size": 20
+        }
+      ]
+    },
+    {
+      "id": "g12",
+      "x": 16,
+      "y": 516,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p12",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 124,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 24,
+          "radiusBottom": 24
+        }
+      ]
+    },
+    {
+      "id": "g13",
+      "x": 24,
+      "y": 532,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p13",
+          "kind": "text",
+          "label": "● 已连接：家庭 Wi-Fi",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g14",
+      "x": 24,
+      "y": 568,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p14",
+          "kind": "text",
+          "label": "● 手机 IP：192.168.1.105",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g15",
+      "x": 24,
+      "y": 604,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p15",
+          "kind": "text",
+          "label": "● 端口 9321 正在监听",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g16",
+      "x": 16,
+      "y": 656,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p16",
+          "kind": "listItem",
+          "label": "当前配置",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "7 个来源 · 已开启多源合并",
+          "icon2": "chevron_right",
+          "action": {
+            "to": "sources",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "g17",
+      "x": 16,
+      "y": 732,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p17",
+          "kind": "button",
+          "label": "缓存占用 126 MB · 查看",
+          "icon": null,
+          "variant": "text",
+          "size": 380,
+          "action": {
+            "to": "tools",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "g18",
+      "x": 0,
+      "y": 788,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p18",
+          "kind": "bottomNav",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "selected": 0,
+          "tabs": [
+            {
+              "icon": "home",
+              "label": "首页"
+            },
+            {
+              "icon": "video_library",
+              "label": "来源"
+            },
+            {
+              "icon": "build",
+              "label": "工具"
+            }
+          ],
+          "actions": {
+            "tab:0": {
+              "to": "home",
+              "transition": "fade"
+            },
+            "tab:1": {
+              "to": "sources",
+              "transition": "fade"
+            },
+            "tab:2": {
+              "to": "tools",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g71",
+      "x": 984,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p71",
+          "kind": "topAppBar",
+          "label": "工具",
+          "icon": null,
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "g72",
+      "x": 1008,
+      "y": 112,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p72",
+          "kind": "text",
+          "label": "缓存管理",
+          "icon": null,
+          "variant": "filled",
+          "size": 22
+        }
+      ]
+    },
+    {
+      "id": "g73",
+      "x": 1000,
+      "y": 152,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p73",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 410,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 24,
+          "radiusBottom": 24
+        }
+      ]
+    },
+    {
+      "id": "g74",
+      "x": 1016,
+      "y": 170,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p74",
+          "kind": "text",
+          "label": "搜索缓存",
+          "icon": null,
+          "variant": "filled",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "id": "g75",
+      "x": 1286,
+      "y": 170,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p75",
+          "kind": "text",
+          "label": "12 MB",
+          "icon": null,
+          "variant": "filled",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "id": "g76",
+      "x": 1016,
+      "y": 200,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p76",
+          "kind": "button",
+          "label": "清理搜索缓存",
+          "icon": null,
+          "variant": "tonal",
+          "size": 348,
+          "note": "清理完成后刷新大小并显示底部短提示，不删除 Token 或来源配置。"
+        }
+      ]
+    },
+    {
+      "id": "g77",
+      "x": 1016,
+      "y": 268,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p77",
+          "kind": "text",
+          "label": "弹幕缓存",
+          "icon": null,
+          "variant": "filled",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "id": "g78",
+      "x": 1286,
+      "y": 268,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p78",
+          "kind": "text",
+          "label": "104 MB",
+          "icon": null,
+          "variant": "filled",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "id": "g79",
+      "x": 1016,
+      "y": 298,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p79",
+          "kind": "button",
+          "label": "清理弹幕缓存",
+          "icon": null,
+          "variant": "tonal",
+          "size": 348,
+          "note": "清理完成后刷新大小并显示底部短提示，不删除 Token 或来源配置。"
+        }
+      ]
+    },
+    {
+      "id": "g80",
+      "x": 1016,
+      "y": 366,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p80",
+          "kind": "text",
+          "label": "匹配数据缓存",
+          "icon": null,
+          "variant": "filled",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "id": "g81",
+      "x": 1286,
+      "y": 366,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p81",
+          "kind": "text",
+          "label": "10 MB",
+          "icon": null,
+          "variant": "filled",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "id": "g82",
+      "x": 1016,
+      "y": 396,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p82",
+          "kind": "button",
+          "label": "清理匹配数据缓存",
+          "icon": null,
+          "variant": "tonal",
+          "size": 348,
+          "note": "清理完成后刷新大小并显示底部短提示，不删除 Token 或来源配置。"
+        }
+      ]
+    },
+    {
+      "id": "g83",
+      "x": 1016,
+      "y": 474,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p83",
+          "kind": "text",
+          "label": "合计 126 MB",
+          "icon": null,
+          "variant": "filled",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "id": "g84",
+      "x": 1016,
+      "y": 500,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p84",
+          "kind": "button",
+          "label": "清理全部缓存",
+          "icon": null,
+          "variant": "outlined",
+          "size": 348,
+          "action": {
+            "to": "clear",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "g85",
+      "x": 1008,
+      "y": 590,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p85",
+          "kind": "text",
+          "label": "局域网状态",
+          "icon": null,
+          "variant": "filled",
+          "size": 20
+        }
+      ]
+    },
+    {
+      "id": "g86",
+      "x": 1000,
+      "y": 628,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p86",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 144,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 24,
+          "radiusBottom": 24
+        }
+      ]
+    },
+    {
+      "id": "g87",
+      "x": 1008,
+      "y": 644,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p87",
+          "kind": "text",
+          "label": "● Wi-Fi：家庭 Wi-Fi",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g88",
+      "x": 1008,
+      "y": 676,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p88",
+          "kind": "text",
+          "label": "● 手机 IP：192.168.1.105",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g89",
+      "x": 1008,
+      "y": 708,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p89",
+          "kind": "text",
+          "label": "● API 端口：9321，正在监听",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g90",
+      "x": 1008,
+      "y": 740,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p90",
+          "kind": "text",
+          "label": "● 服务：运行中",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g91",
+      "x": 984,
+      "y": 788,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p91",
+          "kind": "bottomNav",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "selected": 2,
+          "tabs": [
+            {
+              "icon": "home",
+              "label": "首页"
+            },
+            {
+              "icon": "video_library",
+              "label": "来源"
+            },
+            {
+              "icon": "build",
+              "label": "工具"
+            }
+          ],
+          "actions": {
+            "tab:0": {
+              "to": "home",
+              "transition": "fade"
+            },
+            "tab:1": {
+              "to": "sources",
+              "transition": "fade"
+            },
+            "tab:2": {
+              "to": "tools",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g92",
+      "x": 1476,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p92",
+          "kind": "topAppBar",
+          "label": "设置",
+          "icon": "arrow_back",
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "home",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g93",
+      "x": 1500,
+      "y": 112,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p93",
+          "kind": "text",
+          "label": "API Token",
+          "icon": null,
+          "variant": "filled",
+          "size": 20
+        }
+      ]
+    },
+    {
+      "id": "g94",
+      "x": 1492,
+      "y": 148,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p94",
+          "kind": "listItem",
+          "label": "••••••••••••••••••••••••",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "点击复制完整 API Token",
+          "icon2": "content_copy"
+        }
+      ]
+    },
+    {
+      "id": "g95",
+      "x": 1492,
+      "y": 236,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p95",
+          "kind": "button",
+          "label": "显示完整 Token",
+          "icon": "visibility",
+          "variant": "tonal",
+          "size": 380
+        }
+      ]
+    },
+    {
+      "id": "g96",
+      "x": 1492,
+      "y": 304,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p96",
+          "kind": "button",
+          "label": "重新生成 Token",
+          "icon": "refresh",
+          "variant": "outlined",
+          "size": 380,
+          "action": {
+            "to": "token",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "g97",
+      "x": 1500,
+      "y": 398,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p97",
+          "kind": "text",
+          "label": "管理 Token",
+          "icon": null,
+          "variant": "filled",
+          "size": 20
+        }
+      ]
+    },
+    {
+      "id": "g98",
+      "x": 1492,
+      "y": 438,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p98",
+          "kind": "listItem",
+          "label": "••••••••••••••••••••••••",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "仅用于管理页面，不填入播放器。",
+          "icon2": "content_copy"
+        }
+      ]
+    },
+    {
+      "id": "g99",
+      "x": 1500,
+      "y": 540,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p99",
+          "kind": "text",
+          "label": "服务行为",
+          "icon": null,
+          "variant": "filled",
+          "size": 20
+        }
+      ]
+    },
+    {
+      "id": "g100",
+      "x": 1500,
+      "y": 580,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p100",
+          "kind": "switch",
+          "label": "保持前台运行",
+          "icon": null,
+          "variant": "filled",
+          "size": 364,
+          "checked": true
+        }
+      ]
+    },
+    {
+      "id": "g101",
+      "x": 1500,
+      "y": 638,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p101",
+          "kind": "switch",
+          "label": "开机后自动启动",
+          "icon": null,
+          "variant": "filled",
+          "size": 364,
+          "checked": false
+        }
+      ]
+    },
+    {
+      "id": "g102",
+      "x": 1500,
+      "y": 712,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p102",
+          "kind": "text",
+          "label": "关于",
+          "icon": null,
+          "variant": "filled",
+          "size": 20
+        }
+      ]
+    },
+    {
+      "id": "g103",
+      "x": 1492,
+      "y": 752,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p103",
+          "kind": "listItem",
+          "label": "LogVar Android App",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "服务版本与修复状态 · 查看",
+          "icon2": "chevron_right",
+          "action": {
+            "to": "about",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "g104",
+      "x": 1968,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p104",
+          "kind": "topAppBar",
+          "label": "B站检测结果",
+          "icon": "arrow_back",
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "sources",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g105",
+      "x": 1984,
+      "y": 120,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p105",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 128,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 24,
+          "radiusBottom": 24
+        }
+      ]
+    },
+    {
+      "id": "g106",
+      "x": 1992,
+      "y": 144,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p106",
+          "kind": "text",
+          "label": "● 检测正常",
+          "icon": null,
+          "variant": "filled",
+          "size": 24
+        }
+      ]
+    },
+    {
+      "id": "g107",
+      "x": 1992,
+      "y": 194,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p107",
+          "kind": "text",
+          "label": "完成于今天 20:30 · 用时 8 秒",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g108",
+      "x": 1984,
+      "y": 280,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p108",
+          "kind": "listItem",
+          "label": "1. 搜索测试内容",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "正常",
+          "icon2": "check_circle"
+        }
+      ]
+    },
+    {
+      "id": "g109",
+      "x": 1984,
+      "y": 360,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p109",
+          "kind": "listItem",
+          "label": "2. 读取分集",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "正常",
+          "icon2": "check_circle"
+        }
+      ]
+    },
+    {
+      "id": "g110",
+      "x": 1984,
+      "y": 440,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p110",
+          "kind": "listItem",
+          "label": "3. 下载第 1 集弹幕",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "正常 · 3,901 条",
+          "icon2": "check_circle"
+        }
+      ]
+    },
+    {
+      "id": "g111",
+      "x": 1984,
+      "y": 556,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p111",
+          "kind": "button",
+          "label": "重新检测 B站",
+          "icon": "refresh",
+          "variant": "filled",
+          "size": 380
+        }
+      ]
+    },
+    {
+      "id": "g112",
+      "x": 1984,
+      "y": 636,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p112",
+          "kind": "button",
+          "label": "查看失败状态示例",
+          "icon": null,
+          "variant": "text",
+          "size": 380,
+          "action": {
+            "to": "failed",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "g113",
+      "x": 2460,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p113",
+          "kind": "topAppBar",
+          "label": "B站检测结果",
+          "icon": "arrow_back",
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "sources",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g114",
+      "x": 2476,
+      "y": 120,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p114",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 128,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 24,
+          "radiusBottom": 24
+        }
+      ]
+    },
+    {
+      "id": "g115",
+      "x": 2484,
+      "y": 144,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p115",
+          "kind": "text",
+          "label": "● 检测失败",
+          "icon": null,
+          "variant": "filled",
+          "size": 24
+        }
+      ]
+    },
+    {
+      "id": "g116",
+      "x": 2484,
+      "y": 194,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p116",
+          "kind": "text",
+          "label": "完成于今天 20:30 · 示例状态",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g117",
+      "x": 2476,
+      "y": 280,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p117",
+          "kind": "listItem",
+          "label": "1. 搜索测试内容",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "正常",
+          "icon2": "check_circle"
+        }
+      ]
+    },
+    {
+      "id": "g118",
+      "x": 2476,
+      "y": 360,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p118",
+          "kind": "listItem",
+          "label": "2. 读取分集",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "正常",
+          "icon2": "check_circle"
+        }
+      ]
+    },
+    {
+      "id": "g119",
+      "x": 2476,
+      "y": 440,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p119",
+          "kind": "listItem",
+          "label": "3. 下载第 1 集弹幕",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "失败 · 请求超时",
+          "icon2": "error"
+        }
+      ]
+    },
+    {
+      "id": "g120",
+      "x": 2476,
+      "y": 536,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p120",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 104,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 24,
+          "radiusBottom": 24
+        }
+      ]
+    },
+    {
+      "id": "g121",
+      "x": 2484,
+      "y": 554,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p121",
+          "kind": "text",
+          "label": "失败阶段：下载弹幕",
+          "icon": null,
+          "variant": "filled",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "id": "g122",
+      "x": 2484,
+      "y": 590,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p122",
+          "kind": "text",
+          "label": "请求超时，请检查网络后重新检测。",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "g123",
+      "x": 2476,
+      "y": 672,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p123",
+          "kind": "button",
+          "label": "重新检测 B站",
+          "icon": "refresh",
+          "variant": "filled",
+          "size": 380
+        }
+      ]
+    },
+    {
+      "id": "g124",
+      "x": 0,
+      "y": 1580,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p124",
+          "kind": "topAppBar",
+          "label": "LogVar",
+          "icon": "arrow_back",
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "home",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g125",
+      "x": 50,
+      "y": 1830,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p125",
+          "kind": "dialog",
+          "label": "停止弹幕服务器？",
+          "icon": "info",
+          "variant": "filled",
+          "size": 312,
+          "size2": 240,
+          "supporting": "电视和其他局域网设备将暂时无法获取弹幕。"
+        }
+      ]
+    },
+    {
+      "id": "g126",
+      "x": 66,
+      "y": 2086,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p126",
+          "kind": "button",
+          "label": "取消",
+          "icon": null,
+          "variant": "text",
+          "size": 132,
+          "action": {
+            "to": "home",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "g127",
+      "x": 210,
+      "y": 2086,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p127",
+          "kind": "button",
+          "label": "停止服务",
+          "icon": null,
+          "variant": "filled",
+          "size": 136,
+          "action": {
+            "to": "home",
+            "transition": "fade"
+          },
+          "note": "仅示意确认后的返回路径，不执行真实服务操作。"
+        }
+      ]
+    },
+    {
+      "id": "g128",
+      "x": 492,
+      "y": 1580,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p128",
+          "kind": "topAppBar",
+          "label": "LogVar",
+          "icon": "arrow_back",
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "sources",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g129",
+      "x": 542,
+      "y": 1830,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p129",
+          "kind": "dialog",
+          "label": "应用设置并重启？",
+          "icon": "info",
+          "variant": "filled",
+          "size": 312,
+          "size2": 240,
+          "supporting": "正在播放的客户端需重新搜索或重新加载弹幕。"
+        }
+      ]
+    },
+    {
+      "id": "g130",
+      "x": 558,
+      "y": 2086,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p130",
+          "kind": "button",
+          "label": "取消",
+          "icon": null,
+          "variant": "text",
+          "size": 132,
+          "action": {
+            "to": "sources",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "g131",
+      "x": 702,
+      "y": 2086,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p131",
+          "kind": "button",
+          "label": "应用并重启",
+          "icon": null,
+          "variant": "filled",
+          "size": 136,
+          "action": {
+            "to": "sources",
+            "transition": "fade"
+          },
+          "note": "仅示意确认后的返回路径，不执行真实服务操作。"
+        }
+      ]
+    },
+    {
+      "id": "g132",
+      "x": 984,
+      "y": 1580,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p132",
+          "kind": "topAppBar",
+          "label": "LogVar",
+          "icon": "arrow_back",
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "tools",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g133",
+      "x": 1034,
+      "y": 1830,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p133",
+          "kind": "dialog",
+          "label": "清理全部缓存？",
+          "icon": "info",
+          "variant": "filled",
+          "size": 312,
+          "size2": 240,
+          "supporting": "将删除搜索、弹幕和匹配数据缓存；不会删除 Token 或来源设置。"
+        }
+      ]
+    },
+    {
+      "id": "g134",
+      "x": 1050,
+      "y": 2086,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p134",
+          "kind": "button",
+          "label": "取消",
+          "icon": null,
+          "variant": "text",
+          "size": 132,
+          "action": {
+            "to": "tools",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "g135",
+      "x": 1194,
+      "y": 2086,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p135",
+          "kind": "button",
+          "label": "清理",
+          "icon": null,
+          "variant": "filled",
+          "size": 136,
+          "action": {
+            "to": "tools",
+            "transition": "fade"
+          },
+          "note": "仅示意确认后的返回路径，不执行真实服务操作。"
+        }
+      ]
+    },
+    {
+      "id": "g136",
+      "x": 1476,
+      "y": 1580,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p136",
+          "kind": "topAppBar",
+          "label": "LogVar",
+          "icon": "arrow_back",
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "settings",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g137",
+      "x": 1526,
+      "y": 1830,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p137",
+          "kind": "dialog",
+          "label": "重新生成 API Token？",
+          "icon": "info",
+          "variant": "filled",
+          "size": 312,
+          "size2": 240,
+          "supporting": "旧电视地址会立即失效，需要在播放器中重新填写新的 API 地址。"
+        }
+      ]
+    },
+    {
+      "id": "g138",
+      "x": 1542,
+      "y": 2086,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p138",
+          "kind": "button",
+          "label": "取消",
+          "icon": null,
+          "variant": "text",
+          "size": 132,
+          "action": {
+            "to": "settings",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "g139",
+      "x": 1686,
+      "y": 2086,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p139",
+          "kind": "button",
+          "label": "重新生成",
+          "icon": null,
+          "variant": "filled",
+          "size": 136,
+          "action": {
+            "to": "settings",
+            "transition": "fade"
+          },
+          "note": "仅示意确认后的返回路径，不执行真实服务操作。"
+        }
+      ]
+    },
+    {
+      "id": "g140",
+      "x": 1968,
+      "y": 1580,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p140",
+          "kind": "topAppBar",
+          "label": "服务信息",
+          "icon": "arrow_back",
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "settings",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "g141",
+      "x": 1984,
+      "y": 1708,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p141",
+          "kind": "listItem",
+          "label": "服务版本",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "待接入服务后读取",
+          "icon2": "chevron_right"
+        }
+      ]
+    },
+    {
+      "id": "g142",
+      "x": 1984,
+      "y": 1796,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p142",
+          "kind": "listItem",
+          "label": "B站修复逻辑",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "沿用现有修复 · 待实际验证",
+          "icon2": "chevron_right"
+        }
+      ]
+    },
+    {
+      "id": "g143",
+      "x": 1984,
+      "y": 1884,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p143",
+          "kind": "listItem",
+          "label": "优酷修复逻辑",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "沿用现有修复 · 待实际验证",
+          "icon2": "chevron_right"
+        }
+      ]
+    },
+    {
+      "id": "g144",
+      "x": 1992,
+      "y": 1996,
+      "axis": "x",
+      "items": [
+        {
+          "id": "p144",
+          "kind": "text",
+          "label": "当前为设计预览，未连接运行中的服务。",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "srcfix1",
+      "x": 492,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix1i",
+          "kind": "topAppBar",
+          "label": "弹幕来源",
+          "icon": null,
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "srcfix2",
+      "x": 516,
+      "y": 96,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix2i",
+          "kind": "text",
+          "label": "拖动调整优先级，勾选后启用",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "srcfix3",
+      "x": 516,
+      "y": 126,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix3i",
+          "kind": "text",
+          "label": "搜索与下载来源",
+          "icon": null,
+          "variant": "filled",
+          "size": 18
+        }
+      ]
+    },
+    {
+      "id": "srcfix4",
+      "x": 508,
+      "y": 158,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix4i",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 288,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 20,
+          "radiusBottom": 20
+        }
+      ]
+    },
+    {
+      "id": "srcfix5",
+      "x": 516,
+      "y": 156,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix5i",
+          "kind": "iconButton",
+          "label": "",
+          "icon": "drag_indicator",
+          "variant": "text"
+        }
+      ]
+    },
+    {
+      "id": "srcfix6",
+      "x": 568,
+      "y": 160,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix6i",
+          "kind": "checkbox",
+          "label": "腾讯视频",
+          "icon": null,
+          "variant": "filled",
+          "checked": true
+        }
+      ]
+    },
+    {
+      "id": "srcfix7",
+      "x": 516,
+      "y": 196,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix7i",
+          "kind": "iconButton",
+          "label": "",
+          "icon": "drag_indicator",
+          "variant": "text"
+        }
+      ]
+    },
+    {
+      "id": "srcfix8",
+      "x": 568,
+      "y": 200,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix8i",
+          "kind": "checkbox",
+          "label": "爱奇艺",
+          "icon": null,
+          "variant": "filled",
+          "checked": true
+        }
+      ]
+    },
+    {
+      "id": "srcfix9",
+      "x": 516,
+      "y": 236,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix9i",
+          "kind": "iconButton",
+          "label": "",
+          "icon": "drag_indicator",
+          "variant": "text"
+        }
+      ]
+    },
+    {
+      "id": "srcfix10",
+      "x": 568,
+      "y": 240,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix10i",
+          "kind": "checkbox",
+          "label": "B站",
+          "icon": null,
+          "variant": "filled",
+          "checked": true
+        }
+      ]
+    },
+    {
+      "id": "srcfix11",
+      "x": 516,
+      "y": 276,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix11i",
+          "kind": "iconButton",
+          "label": "",
+          "icon": "drag_indicator",
+          "variant": "text"
+        }
+      ]
+    },
+    {
+      "id": "srcfix12",
+      "x": 568,
+      "y": 280,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix12i",
+          "kind": "checkbox",
+          "label": "弹弹play",
+          "icon": null,
+          "variant": "filled",
+          "checked": true
+        }
+      ]
+    },
+    {
+      "id": "srcfix13",
+      "x": 516,
+      "y": 316,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix13i",
+          "kind": "iconButton",
+          "label": "",
+          "icon": "drag_indicator",
+          "variant": "text"
+        }
+      ]
+    },
+    {
+      "id": "srcfix14",
+      "x": 568,
+      "y": 320,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix14i",
+          "kind": "checkbox",
+          "label": "芒果 TV",
+          "icon": null,
+          "variant": "filled",
+          "checked": true
+        }
+      ]
+    },
+    {
+      "id": "srcfix15",
+      "x": 516,
+      "y": 356,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix15i",
+          "kind": "iconButton",
+          "label": "",
+          "icon": "drag_indicator",
+          "variant": "text"
+        }
+      ]
+    },
+    {
+      "id": "srcfix16",
+      "x": 568,
+      "y": 360,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix16i",
+          "kind": "checkbox",
+          "label": "优酷",
+          "icon": null,
+          "variant": "filled",
+          "checked": true
+        }
+      ]
+    },
+    {
+      "id": "srcfix17",
+      "x": 516,
+      "y": 396,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix17i",
+          "kind": "iconButton",
+          "label": "",
+          "icon": "drag_indicator",
+          "variant": "text"
+        }
+      ]
+    },
+    {
+      "id": "srcfix18",
+      "x": 568,
+      "y": 400,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix18i",
+          "kind": "checkbox",
+          "label": "人人视频",
+          "icon": null,
+          "variant": "filled",
+          "checked": true
+        }
+      ]
+    },
+    {
+      "id": "srcfix19",
+      "x": 516,
+      "y": 454,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix19i",
+          "kind": "text",
+          "label": "已启用 7 个来源",
+          "icon": null,
+          "variant": "filled",
+          "size": 12
+        }
+      ]
+    },
+    {
+      "id": "srcfix20",
+      "x": 508,
+      "y": 480,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix20i",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 120,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 20,
+          "radiusBottom": 20
+        }
+      ]
+    },
+    {
+      "id": "srcfix21",
+      "x": 524,
+      "y": 488,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix21i",
+          "kind": "switch",
+          "label": "多源弹幕合并",
+          "icon": null,
+          "variant": "filled",
+          "size": 348,
+          "checked": true
+        }
+      ]
+    },
+    {
+      "id": "srcfix22",
+      "x": 524,
+      "y": 546,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix22i",
+          "kind": "text",
+          "label": "将已启用来源的同剧同集弹幕合并",
+          "icon": null,
+          "variant": "filled",
+          "size": 13
+        }
+      ]
+    },
+    {
+      "id": "srcfix23",
+      "x": 524,
+      "y": 571,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix23i",
+          "kind": "text",
+          "label": "不同版本、片头或剪辑可能产生偏移。",
+          "icon": null,
+          "variant": "filled",
+          "size": 12
+        }
+      ]
+    },
+    {
+      "id": "srcfix24",
+      "x": 516,
+      "y": 612,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix24i",
+          "kind": "text",
+          "label": "来源检测",
+          "icon": null,
+          "variant": "filled",
+          "size": 18
+        }
+      ]
+    },
+    {
+      "id": "srcfix25",
+      "x": 508,
+      "y": 640,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix25i",
+          "kind": "button",
+          "label": "检测已启用来源",
+          "icon": "network_check",
+          "variant": "tonal",
+          "size": 380,
+          "action": {
+            "to": "sources-scrolled",
+            "transition": "fade"
+          },
+          "note": "预览跳转至同页检测结果视口。正式实现按顺序执行搜索、读取分集、下载弹幕，不跳转新页面。"
+        }
+      ]
+    },
+    {
+      "id": "srcfix26",
+      "x": 492,
+      "y": 698,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix26i",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 412,
+          "size2": 90,
+          "fill": "surface",
+          "radiusTop": 0,
+          "radiusBottom": 0
+        }
+      ]
+    },
+    {
+      "id": "srcfix27",
+      "x": 516,
+      "y": 702,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix27i",
+          "kind": "text",
+          "label": "有未应用的设置",
+          "icon": null,
+          "variant": "filled",
+          "size": 12
+        }
+      ]
+    },
+    {
+      "id": "srcfix28",
+      "x": 508,
+      "y": 726,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix28i",
+          "kind": "button",
+          "label": "应用并重启服务",
+          "icon": "restart_alt",
+          "variant": "filled",
+          "size": 380,
+          "action": {
+            "to": "apply",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "srcfix29",
+      "x": 492,
+      "y": 788,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix29i",
+          "kind": "bottomNav",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "selected": 1,
+          "tabs": [
+            {
+              "icon": "home",
+              "label": "首页"
+            },
+            {
+              "icon": "video_library",
+              "label": "来源"
+            },
+            {
+              "icon": "build",
+              "label": "工具"
+            }
+          ],
+          "actions": {
+            "tab:0": {
+              "to": "home",
+              "transition": "fade"
+            },
+            "tab:2": {
+              "to": "tools",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "srcfix30",
+      "x": 2952,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix30i",
+          "kind": "topAppBar",
+          "label": "弹幕来源",
+          "icon": null,
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "srcfix31",
+      "x": 2976,
+      "y": 106,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix31i",
+          "kind": "text",
+          "label": "来源检测",
+          "icon": null,
+          "variant": "filled",
+          "size": 22
+        }
+      ]
+    },
+    {
+      "id": "srcfix32",
+      "x": 2976,
+      "y": 140,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix32i",
+          "kind": "text",
+          "label": "搜索 → 读取分集 → 下载一集弹幕",
+          "icon": null,
+          "variant": "filled",
+          "size": 13
+        }
+      ]
+    },
+    {
+      "id": "srcfix33",
+      "x": 2968,
+      "y": 172,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix33i",
+          "kind": "button",
+          "label": "重新检测已启用来源",
+          "icon": "network_check",
+          "variant": "tonal",
+          "size": 380
+        }
+      ]
+    },
+    {
+      "id": "srcfix34",
+      "x": 2968,
+      "y": 244,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix34i",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 406,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 20,
+          "radiusBottom": 20
+        }
+      ]
+    },
+    {
+      "id": "srcfix35",
+      "x": 2984,
+      "y": 254,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix35i",
+          "kind": "text",
+          "label": "● 腾讯视频",
+          "icon": null,
+          "variant": "filled",
+          "size": 15
+        }
+      ]
+    },
+    {
+      "id": "srcfix36",
+      "x": 3160,
+      "y": 254,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix36i",
+          "kind": "text",
+          "label": "正常 · 201 条",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "srcfix37",
+      "x": 3004,
+      "y": 279,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix37i",
+          "kind": "text",
+          "label": "今天 20:30",
+          "icon": null,
+          "variant": "filled",
+          "size": 11
+        }
+      ]
+    },
+    {
+      "id": "srcfix38",
+      "x": 2984,
+      "y": 310,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix38i",
+          "kind": "text",
+          "label": "● 爱奇艺",
+          "icon": null,
+          "variant": "filled",
+          "size": 15
+        }
+      ]
+    },
+    {
+      "id": "srcfix39",
+      "x": 3160,
+      "y": 310,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix39i",
+          "kind": "text",
+          "label": "正常 · 3,779 条",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "srcfix40",
+      "x": 3004,
+      "y": 335,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix40i",
+          "kind": "text",
+          "label": "今天 20:30",
+          "icon": null,
+          "variant": "filled",
+          "size": 11
+        }
+      ]
+    },
+    {
+      "id": "srcfix41",
+      "x": 2984,
+      "y": 366,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix41i",
+          "kind": "text",
+          "label": "● B站",
+          "icon": null,
+          "variant": "filled",
+          "size": 15
+        }
+      ]
+    },
+    {
+      "id": "srcfix42",
+      "x": 3160,
+      "y": 366,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix42i",
+          "kind": "text",
+          "label": "正常 · 3,901 条",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "srcfix43",
+      "x": 3004,
+      "y": 391,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix43i",
+          "kind": "text",
+          "label": "今天 20:30",
+          "icon": null,
+          "variant": "filled",
+          "size": 11
+        }
+      ]
+    },
+    {
+      "id": "srcfix44",
+      "x": 3292,
+      "y": 362,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix44i",
+          "kind": "iconButton",
+          "label": "",
+          "icon": "chevron_right",
+          "variant": "text",
+          "action": {
+            "to": "detail",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "srcfix45",
+      "x": 2984,
+      "y": 422,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix45i",
+          "kind": "text",
+          "label": "● 弹弹play",
+          "icon": null,
+          "variant": "filled",
+          "size": 15
+        }
+      ]
+    },
+    {
+      "id": "srcfix46",
+      "x": 3160,
+      "y": 422,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix46i",
+          "kind": "text",
+          "label": "正常 · 2,569 条",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "srcfix47",
+      "x": 3004,
+      "y": 447,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix47i",
+          "kind": "text",
+          "label": "今天 20:30",
+          "icon": null,
+          "variant": "filled",
+          "size": 11
+        }
+      ]
+    },
+    {
+      "id": "srcfix48",
+      "x": 2984,
+      "y": 478,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix48i",
+          "kind": "text",
+          "label": "● 芒果 TV",
+          "icon": null,
+          "variant": "filled",
+          "size": 15
+        }
+      ]
+    },
+    {
+      "id": "srcfix49",
+      "x": 3160,
+      "y": 478,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix49i",
+          "kind": "text",
+          "label": "正常 · 6,777 条",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "srcfix50",
+      "x": 3004,
+      "y": 503,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix50i",
+          "kind": "text",
+          "label": "今天 20:30",
+          "icon": null,
+          "variant": "filled",
+          "size": 11
+        }
+      ]
+    },
+    {
+      "id": "srcfix51",
+      "x": 2984,
+      "y": 534,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix51i",
+          "kind": "text",
+          "label": "● 优酷",
+          "icon": null,
+          "variant": "filled",
+          "size": 15
+        }
+      ]
+    },
+    {
+      "id": "srcfix52",
+      "x": 3160,
+      "y": 534,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix52i",
+          "kind": "text",
+          "label": "正常 · 6,516 条",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "srcfix53",
+      "x": 3004,
+      "y": 559,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix53i",
+          "kind": "text",
+          "label": "今天 20:30",
+          "icon": null,
+          "variant": "filled",
+          "size": 11
+        }
+      ]
+    },
+    {
+      "id": "srcfix54",
+      "x": 2984,
+      "y": 590,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix54i",
+          "kind": "text",
+          "label": "● 人人视频",
+          "icon": null,
+          "variant": "filled",
+          "size": 15
+        }
+      ]
+    },
+    {
+      "id": "srcfix55",
+      "x": 3160,
+      "y": 590,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix55i",
+          "kind": "text",
+          "label": "正常 · 3,983 条",
+          "icon": null,
+          "variant": "filled",
+          "size": 14
+        }
+      ]
+    },
+    {
+      "id": "srcfix56",
+      "x": 3004,
+      "y": 615,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix56i",
+          "kind": "text",
+          "label": "今天 20:30",
+          "icon": null,
+          "variant": "filled",
+          "size": 11
+        }
+      ]
+    },
+    {
+      "id": "srcfix57",
+      "x": 2976,
+      "y": 666,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix57i",
+          "kind": "text",
+          "label": "检测完成 · 7 个来源正常 · 示例结果",
+          "icon": null,
+          "variant": "filled",
+          "size": 12
+        }
+      ]
+    },
+    {
+      "id": "srcfix58",
+      "x": 2952,
+      "y": 698,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix58i",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 412,
+          "size2": 90,
+          "fill": "surface",
+          "radiusTop": 0,
+          "radiusBottom": 0
+        }
+      ]
+    },
+    {
+      "id": "srcfix59",
+      "x": 2976,
+      "y": 702,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix59i",
+          "kind": "text",
+          "label": "有未应用的设置",
+          "icon": null,
+          "variant": "filled",
+          "size": 12
+        }
+      ]
+    },
+    {
+      "id": "srcfix60",
+      "x": 2968,
+      "y": 726,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix60i",
+          "kind": "button",
+          "label": "应用并重启服务",
+          "icon": "restart_alt",
+          "variant": "filled",
+          "size": 380,
+          "action": {
+            "to": "apply",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "srcfix61",
+      "x": 2952,
+      "y": 788,
+      "axis": "x",
+      "items": [
+        {
+          "id": "srcfix61i",
+          "kind": "bottomNav",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "selected": 1,
+          "tabs": [
+            {
+              "icon": "home",
+              "label": "首页"
+            },
+            {
+              "icon": "video_library",
+              "label": "来源"
+            },
+            {
+              "icon": "build",
+              "label": "工具"
+            }
+          ],
+          "actions": {
+            "tab:0": {
+              "to": "home",
+              "transition": "fade"
+            },
+            "tab:2": {
+              "to": "tools",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "id": "home",
+      "name": "首页 · 运行中",
+      "x": 0,
+      "y": 0,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": "绿色用于正常状态。API 默认遮蔽 Token 中段，复制完整地址；复制、启停完成用底部短提示。启动按钮在运行时禁用。"
+    },
+    {
+      "id": "sources",
+      "name": "来源 · 顶部",
+      "x": 492,
+      "y": 0,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": "标准手机视口。这与来源·向下滚动后是同一个页面的两个滚动位置，不是两个功能页。内容滚动；应用区和导航固定。未勾选来源变灰并保留排序，配置确认应用后才生效。",
+      "swipe": {
+        "up": "sources-scrolled"
+      }
+    },
+    {
+      "id": "tools",
+      "name": "工具",
+      "x": 984,
+      "y": 0,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": ""
+    },
+    {
+      "id": "settings",
+      "name": "设置",
+      "x": 1476,
+      "y": 0,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": "API 与管理 Token 分离；复制完整值，显示可切换；开机自启默认关闭，用户手动启用。所有 Token 为占位。"
+    },
+    {
+      "id": "detail",
+      "name": "B站检测结果",
+      "x": 1968,
+      "y": 0,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": "来源检测正常示例；错误详情需隐藏 Token。B站、优酷必须沿用现有修复逻辑。"
+    },
+    {
+      "id": "failed",
+      "name": "来源检测详情 · 失败示例",
+      "x": 2460,
+      "y": 0,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": "红色仅用于检测失败。示例故障：下载弹幕请求超时，非真实平台状态。重试只检测当前来源。"
+    },
+    {
+      "id": "stop",
+      "name": "停止弹幕服务器？",
+      "x": 0,
+      "y": 1580,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": "模态确认状态示意；实际覆盖在来源页面之上。确认执行后显示底部短提示。"
+    },
+    {
+      "id": "apply",
+      "name": "应用设置并重启？",
+      "x": 492,
+      "y": 1580,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": "模态确认状态示意；实际覆盖在来源页面之上。确认执行后显示底部短提示。"
+    },
+    {
+      "id": "clear",
+      "name": "清理全部缓存？",
+      "x": 984,
+      "y": 1580,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": "模态确认状态示意；实际覆盖在来源页面之上。确认执行后显示底部短提示。"
+    },
+    {
+      "id": "token",
+      "name": "重新生成 API Token？",
+      "x": 1476,
+      "y": 1580,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": "模态确认状态示意；实际覆盖在来源页面之上。确认执行后显示底部短提示。"
+    },
+    {
+      "id": "about",
+      "name": "服务版本与修复状态",
+      "x": 1968,
+      "y": 1580,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "note": "具体版本与修复状态开发时读取服务，不能把占位展示当作真实验证结果。"
+    },
+    {
+      "id": "sources-scrolled",
+      "name": "来源 · 向下滚动后",
+      "x": 2952,
+      "y": 0,
+      "w": 412,
+      "h": 892,
+      "bg": "surface",
+      "swipe": {
+        "down": "sources"
+      },
+      "note": "来源页向下滚动后的视口，显示同页检测区。顺序检测已启用来源。数值为示例，未连接服务。返回顶部使用下滑。"
+    }
+  ],
+  "paletteKey": "blue",
+  "frame": "phone",
+  "title": "LogVar · 方案一全应用 · 新稿",
+  "brief": "深色低干扰 Android UI 设计。所有 IP、Token、缓存大小及检测结果均为示例。取代旧版来源单页稿。",
+  "platform": "android",
+  "dynamicColor": false,
+  "theme": {
+    "dark": false,
+    "bothModes": false,
+    "contrast": "standard",
+    "shape": "rounded",
+    "font": "system",
+    "emphasized": false,
+    "motion": "expressive"
+  }
+}

@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import { ResourceCache, mapLimited } from '../app/src/main/assets/nodejs-project/danmu_api/utils/mobile-resources.js';
+const cache = new ResourceCache(2, 2048, () => 40);
+const entry = data => ({ data, timestamp: Date.now() });
+cache.set('a', entry('a')).set('b', entry('b')).set('c', entry('c'));
+assert.equal(cache.has('a'), false);
+assert.equal(cache.size, 2);
+cache.set('large', entry('x'.repeat(2048)));
+assert.equal(cache.has('large'), false);
+cache.set('b', entry('replacement'));
+assert.ok(cache.bytes > 0 && cache.bytes <= 2048);
+await new Promise(resolve => setTimeout(resolve, 80));
+assert.equal(cache.size, 0);
+assert.equal(cache.bytes, 0);
+cache.set('a', entry('a')); cache.clear();
+assert.equal(cache.bytes, 0);
+let active = 0, peak = 0;
+const result = await mapLimited([4, 3, 2, 1], 2, async value => {
+  peak = Math.max(peak, ++active);
+  await new Promise(resolve => setTimeout(resolve, value * 2));
+  active--;
+  return value * 2;
+});
+assert.deepEqual(result, [8, 6, 4, 2]);
+assert.equal(peak, 2);
+assert.deepEqual(await mapLimited([], 2, async x => x), []);
+console.log('Cache budget, expiry, and ordered concurrency checks passed.');
