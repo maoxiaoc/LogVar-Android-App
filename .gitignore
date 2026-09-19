@@ -14,3 +14,15 @@ local.properties
 release-signing.properties
 *.log
 *.hprof
+
+# Local credentials and runtime state
+.env
+.env.*
+!.env.example
+!.env.*.example
+.gh-config/
+.git-askpass*
+.cache/
+*.pem
+*.key
+releases/
