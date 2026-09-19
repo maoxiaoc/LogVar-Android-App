@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Window
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -70,6 +71,14 @@ class MainActivity : ComponentActivity() {
   val store = remember { ServiceStore(context) }
   var ready by remember { mutableStateOf(false) }
   var page by remember { mutableStateOf(Page.HOME) }
+  val onBack: () -> Unit = {
+    page = when (page) {
+      Page.SETTINGS -> Page.HOME
+      Page.ABOUT -> Page.SETTINGS
+      Page.SOURCE_RESULTS -> Page.SOURCES
+      else -> Page.HOME
+    }
+  }
   var snapshot by remember { mutableStateOf(ServiceSnapshot.empty()) }
   var shareNetwork by remember { mutableStateOf(ShareNetwork()) }
   val displaySnapshot = snapshot.copy(ip=shareNetwork.ip, networkName=shareNetwork.description)
@@ -94,6 +103,7 @@ class MainActivity : ComponentActivity() {
     val snack = remember { SnackbarHostState() }
     LaunchedEffect(snackbar) { snackbar?.let { snack.showSnackbar(it); snackbar = null } }
     if (!ready) { LoadingScreen(); return@MaterialTheme }
+    BackHandler(enabled = page != Page.HOME, onBack = onBack)
     Scaffold(
       snackbarHost = { SnackbarHost(snack) },
       bottomBar = { if (page in setOf(Page.HOME, Page.SOURCES, Page.SOURCE_RESULTS, Page.TOOLS)) BottomTabs(page) { page = it } }
@@ -102,10 +112,10 @@ class MainActivity : ComponentActivity() {
         when (screen) {
           Page.HOME -> HomeScreen(displaySnapshot, onSettings = { page = Page.SETTINGS }, onSources = { page = Page.SOURCES }, onTools = { page = Page.TOOLS }, onCopy = { copy(context, displaySnapshot.apiUrl) { snackbar = it } }, onStart = { scope.launch { try { snapshot=withContext(Dispatchers.IO) { store.setRunning(true); store.snapshot() }; snackbar="服务已启动" } catch(e:Exception) { snackbar=e.message ?: "启动失败" } } }, onStop = { scope.launch { try { snapshot=withContext(Dispatchers.IO) { store.setRunning(false); store.snapshot() }; snackbar="服务已停止" } catch(e:Exception) { snackbar=e.message ?: "停止失败" } } }, modifier = Modifier.padding(padding))
           Page.SOURCES -> SourcesScreen(store, snapshot, onSnapshot = { snapshot=it }, onSnack = { snackbar=it }, onDetect = { keys -> sourceResults=emptyMap(); sourceDetecting=true; page=Page.SOURCE_RESULTS; scope.launch { try { sourceResults=withContext(Dispatchers.IO) { store.testSources(keys) } } finally { sourceDetecting=false } } }, modifier = Modifier.padding(padding))
-          Page.SOURCE_RESULTS -> SourceResultsScreen(sourceResults, sourceDetecting, onBack = { page=Page.SOURCES }, onRedetect = { val keys=snapshot.sources.filter { it.enabled }.map { it.key }; sourceResults=emptyMap(); sourceDetecting=true; scope.launch { try { sourceResults=withContext(Dispatchers.IO) { store.testSources(keys) } } finally { sourceDetecting=false } } }, modifier = Modifier.padding(padding))
+          Page.SOURCE_RESULTS -> SourceResultsScreen(sourceResults, sourceDetecting, onBack = onBack, onRedetect = { val keys=snapshot.sources.filter { it.enabled }.map { it.key }; sourceResults=emptyMap(); sourceDetecting=true; scope.launch { try { sourceResults=withContext(Dispatchers.IO) { store.testSources(keys) } } finally { sourceDetecting=false } } }, modifier = Modifier.padding(padding))
           Page.TOOLS -> ToolsScreen(store, displaySnapshot, onSnapshot = { snapshot=it }, onSnack = { snackbar=it }, modifier = Modifier.padding(padding))
-          Page.SETTINGS -> SettingsScreen(store, snapshot, onBack = { page=Page.HOME }, onAbout = { page=Page.ABOUT }, onSnapshot={snapshot=it}, onSnack={snackbar=it}, modifier=Modifier.padding(padding))
-          Page.ABOUT -> AboutScreen(snapshot, onBack={page=Page.SETTINGS}, modifier=Modifier.padding(padding))
+          Page.SETTINGS -> SettingsScreen(store, snapshot, onBack = onBack, onAbout = { page=Page.ABOUT }, onSnapshot={snapshot=it}, onSnack={snackbar=it}, modifier=Modifier.padding(padding))
+          Page.ABOUT -> AboutScreen(snapshot, onBack=onBack, modifier=Modifier.padding(padding))
         }
       }
     }
@@ -204,11 +214,11 @@ class MainActivity : ComponentActivity() {
     Text("关闭后离开应用将停止服务；开启后通过常驻通知保持后台服务。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     SwitchLine("开机后自动启动", boot) { boot = it; store.setFlag("boot", it) }
     Spacer(Modifier.height(18.dp)); Text("关于", style = MaterialTheme.typography.titleLarge)
-    ExpressiveListItem("Logvar · 测试版", "${BuildConfig.VERSION_NAME} · 服务版本与修复状态", Icons.Rounded.ChevronRight, onAbout)
+    ExpressiveListItem("Logvar · 测试版", "${BuildConfig.VERSION_NAME} · 服务版本", Icons.Rounded.ChevronRight, onAbout)
   } }
 }
 
-@Composable private fun AboutScreen(s:ServiceSnapshot,onBack:()->Unit,modifier:Modifier){Column(modifier.fillMaxSize()){AppBar("服务信息",onBack);Column(Modifier.padding(16.dp)){ExpressiveListItem("服务版本",s.version,Icons.Rounded.ChevronRight){};ExpressiveListItem("B站修复逻辑","沿用现有修复",Icons.Rounded.ChevronRight){};ExpressiveListItem("优酷修复逻辑","沿用现有修复",Icons.Rounded.ChevronRight){};Spacer(Modifier.height(24.dp));Text("信息来自当前内置服务。",color=MaterialTheme.colorScheme.onSurfaceVariant)}}}
+@Composable private fun AboutScreen(s:ServiceSnapshot,onBack:()->Unit,modifier:Modifier){Column(modifier.fillMaxSize()){AppBar("服务信息",onBack);Column(Modifier.padding(16.dp)){ExpressiveListItem("服务版本",s.version,Icons.Rounded.ChevronRight){} }}}
 
 @Composable private fun ExpressiveListItem(title:String,support:String,icon:androidx.compose.ui.graphics.vector.ImageVector,onClick:()->Unit){Surface(Modifier.fillMaxWidth().padding(vertical=3.dp).clickable(onClick=onClick),shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surfaceContainerLow){Row(Modifier.heightIn(min=72.dp).padding(horizontal=16.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(title,style=MaterialTheme.typography.bodyLarge,maxLines=1,overflow=TextOverflow.Ellipsis);Text(support,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant,maxLines=1,overflow=TextOverflow.Ellipsis)};Icon(icon,null)}}}
 @Composable private fun SwitchLine(label:String,checked:Boolean,onChange:(Boolean)->Unit){Row(Modifier.fillMaxWidth().heightIn(min=56.dp),verticalAlignment=Alignment.CenterVertically){Text(label,Modifier.weight(1f),style=MaterialTheme.typography.bodyLarge);Switch(checked,onChange)}}
@@ -375,6 +385,7 @@ private fun localIp(): String = try {
     if (!network.isUp || network.isLoopback) null else network.inetAddresses.toList().firstOrNull { address -> address is Inet4Address && !address.isLoopbackAddress }?.hostAddress
   } ?: "未连接 Wi-Fi"
 } catch (_: Exception) { "未连接 Wi-Fi" }
+
 
 
 
