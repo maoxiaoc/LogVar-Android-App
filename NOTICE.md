@@ -12,7 +12,7 @@ The UI design was informed by [`lnkiai/m3e-canvas`](https://github.com/lnkiai/m3
 
 ## Direct server dependencies
 
-The embedded server uses the following direct packages. Their notices and license texts remain the responsibility of each package's respective author:
+The embedded server uses the following direct packages. Distributors of this application must preserve and provide the notices and license texts required by each dependency; attribution alone does not satisfy those obligations:
 
 | Package | License |
 | --- | --- |
@@ -32,3 +32,11 @@ The lock files identify the exact versions used for a build. Transitive dependen
 ## Third-party services and data
 
 The source adapters query third-party websites. Users are responsible for following the applicable platform rules and copyright requirements. Logvar is intended for personal learning and technical exchange; it does not grant permission to redistribute third-party content or operate a public content service.
+
+## Android modifications
+
+The Android adaptation adds a Compose UI, embedded Node runtime, foreground service lifecycle, source ordering and detection, and mobile cache/concurrency controls. These changes are maintained independently of the upstream project.
+
+## Native runtime
+
+The application bundles Node native libraries in app/libnode. Their exact upstream distribution, version, bundled third-party licenses and source/build provenance must be verified before public distribution. The license table above covers direct JavaScript packages only and is not a complete APK license audit.
