@@ -26,3 +26,4 @@ release-signing.properties
 *.pem
 *.key
 releases/
+.github-sync-check/

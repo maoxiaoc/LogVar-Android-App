@@ -12,6 +12,9 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,6 +47,7 @@ import java.net.URLEncoder
 import java.util.UUID
 
 private enum class Page { HOME, SOURCES, SOURCE_RESULTS, TOOLS, SETTINGS, ABOUT }
+private enum class SourceMode { PRIORITY, MERGE, MOST }
 internal data class Source(val key: String, val label: String, val platform: String, val keyword: String)
 private data class CacheSizes(val search: Long, val comments: Long, val matching: Long) { val total get() = search + comments + matching }
 
@@ -103,18 +107,18 @@ class MainActivity : ComponentActivity() {
     val snack = remember { SnackbarHostState() }
     LaunchedEffect(snackbar) { snackbar?.let { snack.showSnackbar(it); snackbar = null } }
     if (!ready) { LoadingScreen(); return@MaterialTheme }
-    BackHandler(enabled = page != Page.HOME, onBack = onBack)
+    BackHandler(enabled = page != Page.HOME) { if (page != Page.SETTINGS) onBack() }
     Scaffold(
       snackbarHost = { SnackbarHost(snack) },
-      bottomBar = { if (page in setOf(Page.HOME, Page.SOURCES, Page.SOURCE_RESULTS, Page.TOOLS)) BottomTabs(page) { page = it } }
+      bottomBar = { if (page in setOf(Page.HOME, Page.SOURCES, Page.SOURCE_RESULTS, Page.SETTINGS)) BottomTabs(page) { page = it } }
     ) { padding ->
-      AnimatedContent(page) { screen ->
+      AnimatedContent(page, transitionSpec = { fadeIn(spring()) togetherWith fadeOut(spring()) }) { screen ->
         when (screen) {
-          Page.HOME -> HomeScreen(displaySnapshot, onSettings = { page = Page.SETTINGS }, onSources = { page = Page.SOURCES }, onTools = { page = Page.TOOLS }, onCopy = { copy(context, displaySnapshot.apiUrl) { snackbar = it } }, onStart = { scope.launch { try { snapshot=withContext(Dispatchers.IO) { store.setRunning(true); store.snapshot() }; snackbar="服务已启动" } catch(e:Exception) { snackbar=e.message ?: "启动失败" } } }, onStop = { scope.launch { try { snapshot=withContext(Dispatchers.IO) { store.setRunning(false); store.snapshot() }; snackbar="服务已停止" } catch(e:Exception) { snackbar=e.message ?: "停止失败" } } }, modifier = Modifier.padding(padding))
+          Page.HOME -> HomeScreen(displaySnapshot, onSources = { page = Page.SOURCES }, onTools = { page = Page.TOOLS }, onCopy = { copy(context, displaySnapshot.apiUrl) { snackbar = it } }, onStart = { scope.launch { try { snapshot=withContext(Dispatchers.IO) { store.setRunning(true); store.snapshot() }; snackbar="已启动完成" } catch(e:Exception) { snackbar=e.message ?: "启动失败" } } }, onStop = { scope.launch { try { snapshot=withContext(Dispatchers.IO) { store.setRunning(false); store.snapshot() }; snackbar="服务已停止" } catch(e:Exception) { snackbar=e.message ?: "停止失败" } } }, modifier = Modifier.padding(padding))
           Page.SOURCES -> SourcesScreen(store, snapshot, onSnapshot = { snapshot=it }, onSnack = { snackbar=it }, onDetect = { keys -> sourceResults=emptyMap(); sourceDetecting=true; page=Page.SOURCE_RESULTS; scope.launch { try { sourceResults=withContext(Dispatchers.IO) { store.testSources(keys) } } finally { sourceDetecting=false } } }, modifier = Modifier.padding(padding))
           Page.SOURCE_RESULTS -> SourceResultsScreen(sourceResults, sourceDetecting, onBack = onBack, onRedetect = { val keys=snapshot.sources.filter { it.enabled }.map { it.key }; sourceResults=emptyMap(); sourceDetecting=true; scope.launch { try { sourceResults=withContext(Dispatchers.IO) { store.testSources(keys) } } finally { sourceDetecting=false } } }, modifier = Modifier.padding(padding))
-          Page.TOOLS -> ToolsScreen(store, displaySnapshot, onSnapshot = { snapshot=it }, onSnack = { snackbar=it }, modifier = Modifier.padding(padding))
-          Page.SETTINGS -> SettingsScreen(store, snapshot, onBack = onBack, onAbout = { page=Page.ABOUT }, onSnapshot={snapshot=it}, onSnack={snackbar=it}, modifier=Modifier.padding(padding))
+          Page.TOOLS -> ToolsScreen(store, displaySnapshot, onBack = onBack, onSnapshot = { snapshot=it }, onSnack = { snackbar=it }, modifier = Modifier.padding(padding))
+          Page.SETTINGS -> SettingsScreen(store, snapshot, onAbout = { page=Page.ABOUT }, onSnapshot={snapshot=it}, onSnack={snackbar=it}, modifier=Modifier.padding(padding))
           Page.ABOUT -> AboutScreen(snapshot, onBack=onBack, modifier=Modifier.padding(padding))
         }
       }
@@ -127,52 +131,69 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable private fun AppBar(title: String, back: (() -> Unit)? = null, action: (@Composable RowScope.() -> Unit)? = null) { TopAppBar(title={Text(title)}, navigationIcon={ if(back!=null) IconButton(back){Icon(Icons.Rounded.ArrowBack,"返回")} }, actions={ action?.invoke(this) }) }
 
-@Composable private fun HomeScreen(s: ServiceSnapshot, onSettings:()->Unit, onSources:()->Unit, onTools:()->Unit, onCopy:()->Unit, onStart:()->Unit, onStop:()->Unit, modifier: Modifier) {
+@Composable private fun HomeScreen(s: ServiceSnapshot, onSources:()->Unit, onTools:()->Unit, onCopy:()->Unit, onStart:()->Unit, onStop:()->Unit, modifier: Modifier) {
   var confirmStop by remember { mutableStateOf(false) }
   val status = if(s.running) "服务运行中" else "服务已停止"
   Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-    AppBar("首页", action={ IconButton(onSettings){Icon(Icons.Rounded.Settings,"设置")} })
+    AppBar("首页")
     Column(Modifier.padding(horizontal=16.dp)) {
-      Text("手机弹幕服务器", style=MaterialTheme.typography.bodyMedium, color=MaterialTheme.colorScheme.onSurfaceVariant); Spacer(Modifier.height(16.dp))
-      Card(shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) { Column(Modifier.padding(16.dp)) {
+      Spacer(Modifier.height(8.dp))
+      Card(modifier=Modifier.fillMaxWidth().heightIn(min=314.dp), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) { Column(Modifier.padding(16.dp)) {
         Text("● $status", style=MaterialTheme.typography.headlineSmall, color=if(s.running) Color(0xFF198038) else MaterialTheme.colorScheme.error)
         Text(if(s.running) "正在监听局域网请求" else "启动服务后可供局域网设备使用", color=MaterialTheme.colorScheme.onSurfaceVariant); Spacer(Modifier.height(18.dp))
-        Text("API 地址", style=MaterialTheme.typography.labelLarge); Text(if(s.ip.isBlank()) "请开启热点或连接 Wi-Fi" else s.maskedApiUrl, style=MaterialTheme.typography.bodyLarge, maxLines=1, overflow=TextOverflow.Ellipsis); Spacer(Modifier.height(12.dp))
-        Text(s.networkName, style=MaterialTheme.typography.bodySmall, color=MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("API 地址", style=MaterialTheme.typography.labelLarge); Text(if(s.ip.isBlank()) "请开启热点或连接 Wi-Fi" else s.maskedApiUrl, style=MaterialTheme.typography.bodyLarge, maxLines=1, overflow=TextOverflow.Ellipsis); Spacer(Modifier.height(12.dp)); Text(s.networkName, style=MaterialTheme.typography.bodySmall, color=MaterialTheme.colorScheme.onSurfaceVariant)
+
         Spacer(Modifier.height(8.dp))
-        Button(onCopy, Modifier.fillMaxWidth(), enabled=s.ip.isNotBlank(), shape=RoundedCornerShape(28.dp)) { Icon(Icons.Rounded.ContentCopy,null); Spacer(Modifier.width(8.dp)); Text("复制 API 地址") }
-        Spacer(Modifier.height(10.dp)); Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(3.dp)) { OutlinedButton(onStart, Modifier.weight(1f), enabled=!s.running) { Text("启动服务") }; OutlinedButton({ confirmStop=true }, Modifier.weight(1f), enabled=s.running, colors=ButtonDefaults.outlinedButtonColors(contentColor=MaterialTheme.colorScheme.primary)) { Text("停止服务") } }
+        Button(onCopy, Modifier.fillMaxWidth().height(56.dp), enabled=s.ip.isNotBlank(), shape=RoundedCornerShape(28.dp)) { Icon(Icons.Rounded.ContentCopy,null); Spacer(Modifier.width(8.dp)); Text("复制 API 地址") }
+        Spacer(Modifier.height(10.dp)); Row(Modifier.fillMaxWidth().height(56.dp), horizontalArrangement=Arrangement.spacedBy(3.dp)) { OutlinedButton(onStart, Modifier.weight(1f).fillMaxHeight(), enabled=!s.running) { Text("启动服务") }; OutlinedButton({ confirmStop=true }, Modifier.weight(1f).fillMaxHeight(), enabled=s.running) { Text("停止服务") } }
       } }
-      Spacer(Modifier.height(24.dp)); Text("局域网状态", style=MaterialTheme.typography.titleLarge); Spacer(Modifier.height(8.dp))
-      Card(shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) { Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(10.dp)) { StatusLine("● ${s.networkName}"); StatusLine("● 共享 IP：${s.ip.ifBlank { "暂无" }}"); StatusLine("● 端口 9321 ${if(s.running) "正在监听" else "未监听"}") } }
-      Spacer(Modifier.height(12.dp)); ExpressiveListItem("当前配置", "${s.enabledSources} 个弹幕源 · ${if(s.merge) "已开启" else "未开启"}多源合并", Icons.Rounded.ChevronRight, onSources)
+      Spacer(Modifier.height(12.dp)); Text("局域网状态", style=MaterialTheme.typography.titleLarge); Spacer(Modifier.height(8.dp))
+      Card(modifier=Modifier.fillMaxWidth().heightIn(min=124.dp),shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) { Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(10.dp)) { StatusLine("● ${s.networkName}"); StatusLine("● 手机 IP：${s.ip.ifBlank { "暂无" }}"); StatusLine("● 端口 9321 ${if(s.running) "正在监听" else "未监听"}") } }
+      Spacer(Modifier.height(8.dp)); ExpressiveListItem("当前配置", "${s.enabledSources} 个弹幕源 · ${s.mode.label}", Icons.Rounded.ChevronRight, onSources)
       TextButton(onTools, Modifier.fillMaxWidth()) { Text("缓存占用 ${formatBytes(s.cache.total)} · 查看") }
     }
   }
-  if (confirmStop) AlertDialog(onDismissRequest={confirmStop=false}, icon={Icon(Icons.Rounded.Info,null)}, title={Text("停止弹幕服务器？")}, text={Text("局域网设备将暂时无法获取弹幕")}, dismissButton={TextButton({confirmStop=false}){Text("取消")}}, confirmButton={Button({confirmStop=false;onStop()}){Text("停止服务")}})
+  if (confirmStop) AlertDialog(onDismissRequest={confirmStop=false}, icon={Icon(Icons.Rounded.Info,null,tint=MaterialTheme.colorScheme.error)}, title={Text("停止弹幕服务器？")}, text={Text("局域网设备将暂时无法获取弹幕")}, dismissButton={TextButton({confirmStop=false}){Text("取消")}}, confirmButton={Button({confirmStop=false;onStop()},colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.error)){Text("停止服务")}})
 }
 
 @Composable private fun SourcesScreen(store: ServiceStore, initial: ServiceSnapshot, onSnapshot:(ServiceSnapshot)->Unit, onSnack:(String)->Unit, onDetect:(List<String>)->Unit, modifier: Modifier) {
   val scope=rememberCoroutineScope { kotlinx.coroutines.CoroutineExceptionHandler { _, error -> onSnack(error.message ?: "操作失败，请重试") } }
   var order by remember { mutableStateOf(initial.sources.map { it.key }) }
   var enabled by remember { mutableStateOf(initial.sources.filter { it.enabled }.map { it.key }.toSet()) }
-  var merge by remember { mutableStateOf(initial.merge) }
-  val changed=order!=initial.sources.map { it.key } || enabled!=initial.sources.filter { it.enabled }.map { it.key }.toSet() || merge!=initial.merge
+  var mode by remember { mutableStateOf(initial.mode) }
+  var strategyOpen by remember { mutableStateOf(false) }
+  val changed=order!=initial.sources.map { it.key } || enabled!=initial.sources.filter { it.enabled }.map { it.key }.toSet() || mode!=initial.mode
+  fun applySettings(after:()->Unit={}) { scope.launch { onSnack("正在应用设置并重新启动服务");withContext(Dispatchers.IO){store.saveSources(order,enabled,mode)};onSnapshot(withContext(Dispatchers.IO){store.snapshot()});onSnack("已启动完成");after() } }
+  if(strategyOpen) {
+    BackHandler { strategyOpen=false }
+    SourceStrategyScreen(mode,{mode=it},{onDetect(order.filter { it in enabled })},{applySettings { strategyOpen=false }},{strategyOpen=false},modifier)
+    return
+  }
   Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
     AppBar("弹幕源")
     Column(Modifier.padding(horizontal=16.dp)) {
-      Text("搜索与下载弹幕源", style=MaterialTheme.typography.titleMedium)
-      Spacer(Modifier.height(10.dp))
+      ExpressiveListItem("弹幕策略",mode.label,Icons.Rounded.Tune){strategyOpen=true}
+      Spacer(Modifier.height(8.dp))
       SourceOrderList(order, enabled, { order=it }, { key, checked -> enabled=if(checked) enabled+key else enabled-key })
-      Text("已启用 " + enabled.size + " 个弹幕源", style=MaterialTheme.typography.labelMedium, modifier=Modifier.padding(top=14.dp,bottom=8.dp))
-      Card(shape=RoundedCornerShape(20.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) { Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal=16.dp),verticalAlignment=Alignment.CenterVertically){Text("多源弹幕合并",Modifier.weight(1f),style=MaterialTheme.typography.bodyLarge); Switch(merge,{merge=it})} }
-      Spacer(Modifier.height(20.dp)); Text("来源检测", style=MaterialTheme.typography.titleMedium); Spacer(Modifier.height(8.dp))
-      FilledTonalButton(onClick={onDetect(order.filter { it in enabled })},Modifier.fillMaxWidth().height(56.dp),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.NetworkCheck,null);Spacer(Modifier.width(8.dp));Text("检测已启用来源")}
-      Spacer(Modifier.height(16.dp))
-      Surface(color=MaterialTheme.colorScheme.surface) { Column(Modifier.padding(vertical=8.dp)) { Text(if(changed) "有未应用的设置" else "设置已应用",style=MaterialTheme.typography.labelMedium,color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(horizontal=16.dp)); Button(onClick={scope.launch{withContext(Dispatchers.IO){store.saveSources(order,enabled,merge)};onSnapshot(withContext(Dispatchers.IO){store.snapshot()});onSnack("设置已应用，服务正在重新启动")}},enabled=changed,modifier=Modifier.fillMaxWidth().height(56.dp),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.RestartAlt,null);Spacer(Modifier.width(8.dp));Text("应用并重启服务")} } }
+      Spacer(Modifier.height(12.dp))
+      Text("已启用 ${enabled.size}/${order.size} 个来源",style=MaterialTheme.typography.labelMedium,color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(horizontal=16.dp))
+      Button(onClick={applySettings()},enabled=changed,modifier=Modifier.fillMaxWidth().height(56.dp),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.RestartAlt,null);Spacer(Modifier.width(8.dp));Text("应用并重启服务")}
       Spacer(Modifier.height(16.dp))
     }
   }
+}
+
+private val SourceMode.label get()=when(this){SourceMode.PRIORITY->"按优先级选择";SourceMode.MERGE->"合并全部来源";SourceMode.MOST->"仅保留弹幕最多的来源"}
+private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用第一个成功匹配的来源";SourceMode.MERGE->"合并多个匹配来源的弹幕";SourceMode.MOST->"比较数量，只显示最多的一组"}
+@Composable private fun SourceStrategyScreen(mode:SourceMode,onMode:(SourceMode)->Unit,onDetect:()->Unit,onApply:()->Unit,onBack:()->Unit,modifier:Modifier){
+  Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())){AppBar("弹幕策略",onBack);Column(Modifier.padding(horizontal=16.dp)){
+    Text("多源结果怎么显示？",style=MaterialTheme.typography.titleLarge);Spacer(Modifier.height(10.dp))
+    Card(shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)){Column{SourceMode.entries.forEach{item->Row(Modifier.fillMaxWidth().clickable{onMode(item)}.padding(horizontal=12.dp,vertical=8.dp),verticalAlignment=Alignment.CenterVertically){RadioButton(mode==item,{onMode(item)});Column(Modifier.padding(start=4.dp)){Text(item.label,style=MaterialTheme.typography.bodyLarge);Text(item.description,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}}}}}
+    Spacer(Modifier.height(16.dp));Card(modifier=Modifier.fillMaxWidth(),shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.primaryContainer)){Column(Modifier.padding(16.dp)){Text("当前选择",style=MaterialTheme.typography.titleMedium);Text(if(mode==SourceMode.MOST)"适合希望弹幕丰富、又不想混合多个平台内容的情况。" else mode.description,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)}}
+    Spacer(Modifier.height(20.dp));Text("来源检测",style=MaterialTheme.typography.titleMedium);Text("验证搜索、分集读取和弹幕下载",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant);Spacer(Modifier.height(8.dp))
+    FilledTonalButton(onDetect,Modifier.fillMaxWidth().height(56.dp),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.NetworkCheck,null);Spacer(Modifier.width(8.dp));Text("检测已启用来源")}
+    Spacer(Modifier.height(16.dp));Button(onApply,Modifier.fillMaxWidth().height(56.dp),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.Check,null);Spacer(Modifier.width(8.dp));Text("应用策略")};Spacer(Modifier.height(16.dp))
+  }}
 }
 
 @Composable private fun SourceResultsScreen(results: Map<String,String>, detecting: Boolean, onBack:()->Unit, onRedetect:()->Unit, modifier: Modifier) {
@@ -184,9 +205,9 @@ class MainActivity : ComponentActivity() {
       Spacer(Modifier.height(12.dp))
       FilledTonalButton(onClick=onRedetect, enabled=!detecting, modifier=Modifier.fillMaxWidth(), shape=RoundedCornerShape(28.dp)) { Icon(Icons.Rounded.NetworkCheck,null); Spacer(Modifier.width(8.dp)); Text(if(detecting) "正在检测…" else "重新检测已启用来源") }
       Spacer(Modifier.height(16.dp))
-      Card(shape=RoundedCornerShape(20.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) {
+      Card(modifier=Modifier.fillMaxWidth(), shape=RoundedCornerShape(20.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) {
         Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(12.dp)) {
-          if (results.isEmpty() && detecting) Text("正在按顺序检测已启用来源…", color=MaterialTheme.colorScheme.onSurfaceVariant)
+          if (results.isEmpty() && detecting) Text("正在检测弹幕来源", modifier=Modifier.fillMaxWidth(), textAlign=androidx.compose.ui.text.style.TextAlign.Center, softWrap=true, maxLines=Int.MAX_VALUE, style=MaterialTheme.typography.bodyMedium, color=MaterialTheme.colorScheme.onSurfaceVariant)
           results.forEach { (key, value) -> Column(Modifier.fillMaxWidth()) { Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceBetween, verticalAlignment=Alignment.CenterVertically) { Text("● ${sourceByKey(key).label}", style=MaterialTheme.typography.bodyLarge); Text(value, color=if(value.startsWith("正常")) Color(0xFF198038) else MaterialTheme.colorScheme.error) }; Text("今天 20:30", style=MaterialTheme.typography.labelSmall, color=MaterialTheme.colorScheme.onSurfaceVariant) } }
         }
       }
@@ -195,18 +216,69 @@ class MainActivity : ComponentActivity() {
   }
 }
 
-@Composable private fun ToolsScreen(store:ServiceStore, initial:ServiceSnapshot,onSnapshot:(ServiceSnapshot)->Unit,onSnack:(String)->Unit,modifier:Modifier){val scope=rememberCoroutineScope { kotlinx.coroutines.CoroutineExceptionHandler { _, error -> onSnack(error.message ?: "操作失败，请重试") } };var sizes by remember{mutableStateOf(initial.cache)};Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())){AppBar("工具");Column(Modifier.padding(horizontal=16.dp)){Text("缓存管理",style=MaterialTheme.typography.headlineSmall);Spacer(Modifier.height(10.dp));Card(shape=RoundedCornerShape(24.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)){Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){CacheEntry("搜索缓存",sizes.search){scope.launch{withContext(Dispatchers.IO){store.clearCache("searchCache")};sizes=withContext(Dispatchers.IO){store.cache()};onSnapshot(withContext(Dispatchers.IO){store.snapshot()});onSnack("搜索缓存已清理")}};CacheEntry("弹幕缓存",sizes.comments){scope.launch{withContext(Dispatchers.IO){store.clearCache("commentCache")};sizes=withContext(Dispatchers.IO){store.cache()};onSnapshot(withContext(Dispatchers.IO){store.snapshot()});onSnack("弹幕缓存已清理")}};CacheEntry("匹配数据缓存",sizes.matching){scope.launch{withContext(Dispatchers.IO){store.clearCache("bangumiData")};sizes=withContext(Dispatchers.IO){store.cache()};onSnapshot(withContext(Dispatchers.IO){store.snapshot()});onSnack("匹配数据缓存已清理")}};Text("合计 ${formatBytes(sizes.total)}",style=MaterialTheme.typography.bodyLarge);OutlinedButton(onClick={scope.launch{withContext(Dispatchers.IO){store.clearCache(null)};sizes=withContext(Dispatchers.IO){store.cache()};onSnapshot(withContext(Dispatchers.IO){store.snapshot()});onSnack("全部缓存已清理")}},Modifier.fillMaxWidth()){Text("清理全部缓存")}}};Spacer(Modifier.height(22.dp));Text("局域网状态",style=MaterialTheme.typography.titleLarge);Spacer(Modifier.height(8.dp));Card(shape=RoundedCornerShape(24.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)){Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){StatusLine("● ${initial.networkName}");StatusLine("● 共享 IP：${initial.ip.ifBlank { "暂无" }}");StatusLine("● API 端口：9321，${if(initial.running)"正在监听" else "未监听"}");StatusLine("● 服务：${if(initial.running)"运行中" else "已停止"}")}}}}}
+@Composable private fun ToolsScreen(store:ServiceStore, initial:ServiceSnapshot,onBack:()->Unit,onSnapshot:(ServiceSnapshot)->Unit,onSnack:(String)->Unit,modifier:Modifier){
+  val scope=rememberCoroutineScope()
+  var sizes by remember{mutableStateOf(initial.cache)}
+  var clearing by remember{mutableStateOf(false)}
+  fun clear(key:String?, name:String) {
+    if(clearing) return
+    clearing=true
+    scope.launch {
+      try {
+        val updated=withContext(Dispatchers.IO){store.clearCache(key);store.snapshot()}
+        sizes=updated.cache
+        onSnapshot(updated)
+        onSnack("${name}已清理")
+      } catch(e:Exception) {
+        onSnack(e.message ?: "清理失败，请重试")
+      } finally { clearing=false }
+    }
+  }
+  Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())){
+    AppBar("缓存管理", onBack)
+    Column(Modifier.padding(horizontal=16.dp)){
+      Text("缓存清理",style=MaterialTheme.typography.headlineSmall)
+      Spacer(Modifier.height(12.dp))
+      Column(verticalArrangement=Arrangement.spacedBy(3.dp)){
+        CacheSummaryLine("搜索缓存",sizes.search,Icons.Rounded.Search,RoundedCornerShape(topStart=28.dp,topEnd=28.dp,bottomStart=8.dp,bottomEnd=8.dp),!clearing){clear("searchCache","搜索缓存")}
+        CacheSummaryLine("弹幕缓存",sizes.comments,Icons.Rounded.Chat,RoundedCornerShape(8.dp),!clearing){clear("commentCache","弹幕缓存")}
+        CacheSummaryLine("匹配数据缓存",sizes.matching,Icons.Rounded.Link,RoundedCornerShape(topStart=8.dp,topEnd=8.dp,bottomStart=28.dp,bottomEnd=28.dp),!clearing){clear("bangumiData","匹配数据缓存")}
+      }
+      Spacer(Modifier.height(16.dp))
+      OutlinedButton(onClick={clear(null,"全部缓存")},enabled=!clearing,modifier=Modifier.fillMaxWidth().height(56.dp)){
+        Icon(Icons.Rounded.DeleteSweep,null)
+        Spacer(Modifier.width(8.dp))
+        Text(if(clearing) "正在清理…" else "清理全部缓存 · 合计 ${formatBytes(sizes.total)}")
+      }
+    }
+  }
+}
 
-@Composable private fun CacheEntry(name:String,size:Long,onClear:()->Unit){Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text(name,Modifier.weight(1f),style=MaterialTheme.typography.bodyLarge);Text(formatBytes(size),style=MaterialTheme.typography.bodyLarge)};FilledTonalButton(onClear,Modifier.fillMaxWidth()){Text("清理$name")}}
+@Composable private fun CacheSummaryLine(name:String,size:Long,icon:androidx.compose.ui.graphics.vector.ImageVector,shape:RoundedCornerShape,enabled:Boolean,onClear:()->Unit){
+  Surface(modifier=Modifier.fillMaxWidth(),shape=shape,color=MaterialTheme.colorScheme.surfaceContainerLow){
+    Row(Modifier.heightIn(min=72.dp).padding(start=16.dp,end=8.dp),verticalAlignment=Alignment.CenterVertically){
+      Surface(shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.primaryContainer){
+        Box(Modifier.size(40.dp),contentAlignment=Alignment.Center){Icon(icon,null,tint=MaterialTheme.colorScheme.onPrimaryContainer)}
+      }
+      Spacer(Modifier.width(16.dp))
+      Column(Modifier.weight(1f)){
+        Text(name,style=MaterialTheme.typography.bodyLarge)
+        Text(formatBytes(size),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+      }
+      IconButton(onClick=onClear,enabled=enabled){Icon(Icons.Rounded.Delete,"清理$name")}
+    }
+  }
+}
 
-@Composable private fun SettingsScreen(store: ServiceStore, s: ServiceSnapshot, onBack: () -> Unit, onAbout: () -> Unit, onSnapshot: (ServiceSnapshot) -> Unit, onSnack: (String) -> Unit, modifier: Modifier) {
+@Composable private fun SettingsScreen(store: ServiceStore, s: ServiceSnapshot, onAbout: () -> Unit, onSnapshot: (ServiceSnapshot) -> Unit, onSnack: (String) -> Unit, modifier: Modifier) {
   val scope = rememberCoroutineScope { kotlinx.coroutines.CoroutineExceptionHandler { _, error -> onSnack(error.message ?: "操作失败，请重试") } }; val context = LocalContext.current
   var shown by remember { mutableStateOf(false) }; var foreground by remember { mutableStateOf(store.flag("foreground", true)) }; var boot by remember { mutableStateOf(store.flag("boot", false)) }
-  Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) { AppBar("设置", onBack); Column(Modifier.padding(horizontal = 16.dp)) {
+  Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) { AppBar("设置"); Column(Modifier.padding(horizontal = 16.dp)) {
     Text("API Token", style = MaterialTheme.typography.titleLarge)
     ExpressiveListItem(if (shown) s.token else "••••••••••••••••••••••••", "点击复制完整 API Token", Icons.Rounded.ContentCopy) { copy(context, s.token, onSnack) }
-    FilledTonalButton({ shown = !shown }, Modifier.fillMaxWidth()) { Icon(if (shown) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility, null); Spacer(Modifier.width(8.dp)); Text(if (shown) "隐藏 Token" else "显示完整 Token") }
-    OutlinedButton({ scope.launch { withContext(Dispatchers.IO) { store.regenerateToken() }; onSnapshot(withContext(Dispatchers.IO){store.snapshot()}); onSnack("API Token 已重新生成") } }, Modifier.fillMaxWidth()) { Icon(Icons.Rounded.Refresh, null); Spacer(Modifier.width(8.dp)); Text("重新生成 Token") }
+    FilledTonalButton({ shown = !shown }, Modifier.fillMaxWidth().height(56.dp), shape=RoundedCornerShape(28.dp)) { Icon(if (shown) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility, null); Spacer(Modifier.width(8.dp)); Text(if (shown) "隐藏 Token" else "显示完整 Token") }
+    Spacer(Modifier.height(8.dp))
+    OutlinedButton({ scope.launch { withContext(Dispatchers.IO) { store.regenerateToken() }; onSnapshot(withContext(Dispatchers.IO){store.snapshot()}); onSnack("API Token 已重新生成") } }, Modifier.fillMaxWidth().height(56.dp), shape=RoundedCornerShape(28.dp)) { Icon(Icons.Rounded.Refresh, null); Spacer(Modifier.width(8.dp)); Text("重新生成 Token") }
     Spacer(Modifier.height(18.dp)); Text("管理 Token", style = MaterialTheme.typography.titleLarge)
     ExpressiveListItem("••••••••••••••••••••••••", "仅用于管理页面，不填入播放器。", Icons.Rounded.ContentCopy) { copy(context, s.adminToken, onSnack) }
     Spacer(Modifier.height(18.dp)); Text("服务行为", style = MaterialTheme.typography.titleLarge)
@@ -223,7 +295,7 @@ class MainActivity : ComponentActivity() {
 @Composable private fun ExpressiveListItem(title:String,support:String,icon:androidx.compose.ui.graphics.vector.ImageVector,onClick:()->Unit){Surface(Modifier.fillMaxWidth().padding(vertical=3.dp).clickable(onClick=onClick),shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surfaceContainerLow){Row(Modifier.heightIn(min=72.dp).padding(horizontal=16.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(title,style=MaterialTheme.typography.bodyLarge,maxLines=1,overflow=TextOverflow.Ellipsis);Text(support,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant,maxLines=1,overflow=TextOverflow.Ellipsis)};Icon(icon,null)}}}
 @Composable private fun SwitchLine(label:String,checked:Boolean,onChange:(Boolean)->Unit){Row(Modifier.fillMaxWidth().heightIn(min=56.dp),verticalAlignment=Alignment.CenterVertically){Text(label,Modifier.weight(1f),style=MaterialTheme.typography.bodyLarge);Switch(checked,onChange)}}
 @Composable private fun StatusLine(text:String){Text(text,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)}
-@Composable private fun BottomTabs(page:Page,onPage:(Page)->Unit){NavigationBar{listOf(Page.HOME to ("首页" to Icons.Rounded.Home),Page.SOURCES to ("弹幕源" to Icons.Rounded.VideoLibrary),Page.TOOLS to ("工具" to Icons.Rounded.Build)).forEach{(p,x)->NavigationBarItem(selected=page==p,onClick={onPage(p)},icon={Icon(x.second,null)},label={Text(x.first)})}}}
+@Composable private fun BottomTabs(page:Page,onPage:(Page)->Unit){NavigationBar{listOf(Page.HOME to ("首页" to Icons.Rounded.Home),Page.SOURCES to ("弹幕源" to Icons.Rounded.VideoLibrary),Page.SETTINGS to ("设置" to Icons.Rounded.Settings)).forEach{(p,x)->NavigationBarItem(selected=page==p || (page==Page.SOURCE_RESULTS && p==Page.SOURCES),onClick={onPage(p)},icon={Icon(x.second,null)},label={Text(x.first)})}}}
 
 private fun fallbackColors()=lightColorScheme(primary=Color(0xFF0B57D0),onPrimary=Color.White,primaryContainer=Color(0xFFD3E3FD),onPrimaryContainer=Color(0xFF041E49),secondary=Color(0xFF5A5C7C),secondaryContainer=Color(0xFFDCE2F9),onSecondaryContainer=Color(0xFF131C2B),tertiaryContainer=Color(0xFFFFD8EE),onTertiaryContainer=Color(0xFF2E1125),surface=Color(0xFFFAF9FD),surfaceContainerLow=Color(0xFFF3F3FA),surfaceContainer=Color(0xFFEEEDF3),surfaceContainerHigh=Color(0xFFE9E8EF),surfaceContainerHighest=Color(0xFFE3E2E6),onSurface=Color(0xFF1B1B1F),onSurfaceVariant=Color(0xFF44474E),outline=Color(0xFF74777F),outlineVariant=Color(0xFFC4C6D0),inverseSurface=Color(0xFF303034),inverseOnSurface=Color(0xFFF2F0F4),inversePrimary=Color(0xFFA8C7FA),error=Color(0xFFB3261E),onError=Color.White,errorContainer=Color(0xFFF9DEDC),onErrorContainer=Color(0xFF410E0B))
 private fun formatBytes(bytes:Long)=if(bytes<1024*1024)"${bytes/1024} KB" else "${"%.1f".format(bytes/1024f/1024f)} MB"
@@ -231,7 +303,7 @@ private fun copy(context:Context,value:String,done:(String)->Unit){(context.getS
 private val sourceList=listOf(Source("tencent","腾讯视频","qq","斗罗大陆系列小剧场"),Source("iqiyi","爱奇艺","qiyi","苍兰诀第2季"),Source("bilibili","B站","bilibili1","我的三体第四季"),Source("dandan","弹弹play","dandan","博人传之火影次世代"),Source("imgo","芒果 TV","imgo","大侦探第十一季"),Source("youku","优酷","youku","少年白马醉春风"),Source("renren","人人视频","renren","爱情怎么翻译"))
 internal fun sourceByKey(key:String)=sourceList.first{it.key==key}
 private data class SourceState(val key:String,val enabled:Boolean)
-private data class ServiceSnapshot(val running:Boolean,val ip:String,val networkName:String,val token:String,val adminToken:String,val merge:Boolean,val sources:List<SourceState>,val cache:CacheSizes,val version:String){val apiUrl get()="http://$ip:9321/$token";val maskedApiUrl get()="http://$ip:9321/${token.take(5)}••••••${token.takeLast(4)}";val enabledSources get()=sources.count{it.enabled};companion object{fun empty()=ServiceSnapshot(false,"未连接 Wi-Fi","未连接 Wi-Fi","","",false,sourceList.map{SourceState(it.key,false)},CacheSizes(0,0,0),"正在读取")}}
+private data class ServiceSnapshot(val running:Boolean,val ip:String,val networkName:String,val token:String,val adminToken:String,val mode:SourceMode,val sources:List<SourceState>,val cache:CacheSizes,val version:String){val apiUrl get()="http://$ip:9321/$token";val maskedApiUrl get()="http://$ip:9321/${token.take(5)}••••••${token.takeLast(4)}";val enabledSources get()=sources.count{it.enabled};companion object{fun empty()=ServiceSnapshot(false,"未连接 Wi-Fi","未连接 Wi-Fi","","",SourceMode.PRIORITY,sourceList.map{SourceState(it.key,false)},CacheSizes(0,0,0),"正在读取")}}
 private class ServiceStore(private val context: Context) {
   private val root = File(context.filesDir, "nodejs-project")
   private val prefs = context.getSharedPreferences("logvar", Context.MODE_PRIVATE)
@@ -250,7 +322,7 @@ private class ServiceStore(private val context: Context) {
     val sourceOrder = env("SOURCE_ORDER").split(',').filter { it.isNotBlank() }
     val ip = localIp()
     return ServiceSnapshot(ServiceLifecycle.running(), ip, if(ip == "未连接 Wi-Fi") ip else "已连接 Wi-Fi",
-      env("TOKEN"), env("ADMIN_TOKEN"), env("MERGE_SOURCE_PAIRS").isNotBlank(),
+      env("TOKEN"), env("ADMIN_TOKEN"), when{env("MAX_DANMU_SOURCE").equals("true",true)->SourceMode.MOST;env("MERGE_SOURCE_PAIRS").isNotBlank()->SourceMode.MERGE;else->SourceMode.PRIORITY},
       (prefs.getString("source_order", null)?.split(',') ?: sourceOrder).plus(sourceList.map { it.key })
         .distinct().filter { key -> sourceList.any { it.key == key } }.map { SourceState(it, it in sourceOrder) },
       cache(), File(root, "danmu_api/configs/globals.js").readLinesSafe().firstOrNull { it.contains("VERSION:") }?.substringAfter("VERSION:")?.substringBefore(',')?.trim()?.trim('\'') ?: "未读取")
@@ -259,13 +331,14 @@ private class ServiceStore(private val context: Context) {
     ServiceLifecycle.setRunning(context, value)
     File(root, "control.json").writeText("{\"running\":$value}")
   }
-  @Synchronized fun saveSources(order: List<String>, enabled: Set<String>, merge: Boolean) {
+  @Synchronized fun saveSources(order: List<String>, enabled: Set<String>, mode: SourceMode) {
     setRunning(false)
     prefs.edit().putString("source_order", order.joinToString(",")).apply()
     val active = order.filter { it in enabled }
     setEnv("SOURCE_ORDER", active.joinToString(","))
     setEnv("PLATFORM_ORDER", active.joinToString(",") { sourceByKey(it).platform })
-    setEnv("MERGE_SOURCE_PAIRS", if (merge) active.joinToString("&") else "")
+    setEnv("MERGE_SOURCE_PAIRS", if (mode!=SourceMode.PRIORITY) active.joinToString("&") else "")
+    setEnv("MAX_DANMU_SOURCE", (mode==SourceMode.MOST).toString())
     setRunning(true)
   }
   @Synchronized fun regenerateToken() {
@@ -284,7 +357,7 @@ private class ServiceStore(private val context: Context) {
     post("/api/cache/clear", if (item == null) "{}" else "{\"items\":[\"$item\"]}")
   }
   @Synchronized fun testSources(keys: List<String>): Map<String, String> {
-    val original = listOf("SOURCE_ORDER", "PLATFORM_ORDER", "MERGE_SOURCE_PAIRS").associateWith { env(it) }
+    val original = listOf("SOURCE_ORDER", "PLATFORM_ORDER", "MERGE_SOURCE_PAIRS", "MAX_DANMU_SOURCE").associateWith { env(it) }
     val wasRunning = ServiceLifecycle.running()
     val result = linkedMapOf<String, String>()
     try {
@@ -295,6 +368,7 @@ private class ServiceStore(private val context: Context) {
           setEnv("SOURCE_ORDER", key)
           setEnv("PLATFORM_ORDER", source.platform)
           setEnv("MERGE_SOURCE_PAIRS", "")
+          setEnv("MAX_DANMU_SOURCE", "false")
           setRunning(true)
           val anime = org.json.JSONObject(getRetry("/api/v2/search/anime?keyword=" + URLEncoder.encode(source.keyword, "UTF-8")))
             .getJSONArray("animes").getJSONObject(0).getString("animeId")
@@ -385,7 +459,6 @@ private fun localIp(): String = try {
     if (!network.isUp || network.isLoopback) null else network.inetAddresses.toList().firstOrNull { address -> address is Inet4Address && !address.isLoopbackAddress }?.hostAddress
   } ?: "未连接 Wi-Fi"
 } catch (_: Exception) { "未连接 Wi-Fi" }
-
 
 
 

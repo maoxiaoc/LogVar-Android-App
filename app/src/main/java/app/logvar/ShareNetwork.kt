@@ -6,7 +6,7 @@ import android.net.NetworkCapabilities
 import java.net.Inet4Address
 import java.net.NetworkInterface
 
-internal data class ShareNetwork(val ip: String = "", val description: String = "请连接 Wi-Fi 或开启手机热点")
+internal data class ShareNetwork(val ip: String = "127.0.0.1", val description: String = "本机地址 · 仅本机可用")
 
 internal fun readShareNetwork(context: Context): ShareNetwork = try {
     val manager = context.getSystemService(ConnectivityManager::class.java)
@@ -32,10 +32,10 @@ internal fun readShareNetwork(context: Context): ShareNetwork = try {
         }.distinct()
         when (candidates.size) {
             1 -> ShareNetwork(candidates.single(), "手机热点 · 供连接此热点的设备使用")
-            0 -> ShareNetwork(description="未检测到可共享地址，请连接 Wi-Fi 或开启手机热点")
-            else -> ShareNetwork(description="检测到多个共享地址，暂时无法确定热点地址")
+            0 -> ShareNetwork(description="未检测到共享网络 · 仅本机可用")
+            else -> ShareNetwork(description="无法确定热点地址 · 仅本机可用")
         }
     }
 } catch (_: Exception) {
-    ShareNetwork(description="暂时无法读取网络地址，请检查 Wi-Fi 或热点状态")
+    ShareNetwork(description="暂时无法读取共享地址 · 仅本机可用")
 }

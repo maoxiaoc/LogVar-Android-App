@@ -772,6 +772,7 @@ export class Envs {
       favoriteRequireAdmin: this.get('FAVORITE_REQUIRE_ADMIN', false, 'boolean'), // 收藏写入和管理接口是否必须使用 admin token；列表始终公开
       sourceOrderArr: this.resolveSourceOrder(), // 源排序
       mergeSourcePairs: this.resolveMergeSourcePairs(), // 源合并配置，用于将源合并获取
+      maxDanmuSource: this.get('MAX_DANMU_SOURCE', false, 'boolean'), // 多源匹配时仅返回弹幕最多的来源
       customMergeRules: this.resolveCustomMergeRules(), // 合并映射表，用于自定义源合并行为。
       otherServer: this.get('OTHER_SERVER', 'https://api.danmu.icu', 'string'), // 第三方弹幕服务器
       customSourceApiUrl: this.get('CUSTOM_SOURCE_API_URL', '', 'string', true), // 自定义弹幕源API地址，默认为空，配置后还需在SOURCE_ORDER添加custom源

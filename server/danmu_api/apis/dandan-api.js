@@ -62,9 +62,10 @@ const PENDING_DANMAKU_REQUESTS = new Map();
 
 function resolveCommentCacheKey(url) {
   const value = String(url || "");
-  if (!globals.hongguoMergeAllEpisodes) return url;
+  const modeKey = globals.maxDanmuSource && value.includes(MERGE_DELIMITER) ? "::max-danmu-source" : "";
+  if (!globals.hongguoMergeAllEpisodes) return `${value}${modeKey}`;
   const containsHongguo = value.includes("hongguo:") || /https?:\/\/(?:www\.)?hongguoduanju\.com(?::\d+)?\/player\//i.test(value);
-  return containsHongguo ? `${value}::hongguo-all-episodes` : url;
+  return containsHongguo ? `${value}::hongguo-all-episodes${modeKey}` : `${value}${modeKey}`;
 }
 
 function normalizeDurationValue(rawValue) {
@@ -2439,9 +2440,13 @@ async function fetchMergedComments(url, animeTitle, commentId) {
 
   // 3. 合并数据
   let mergedList = [];
-  results.forEach(list => {
-    mergedList = mergeDanmakuList(mergedList, list);
-  });
+  if (globals.maxDanmuSource) {
+    const largestIndex = results.reduce((best, list, index) => list.length > (results[best]?.length || 0) ? index : best, 0);
+    mergedList = results[largestIndex] || [];
+    log("info", `[merge] 仅保留弹幕最多来源 ${sourceNames[largestIndex] || 'unknown'}: ${mergedList.length} 条`);
+  } else {
+    results.forEach(list => { mergedList = mergeDanmakuList(mergedList, list); });
+  }
 
   const statDetails = Object.entries(stats).map(([k, v]) => `${k}: ${v}`).join(', ');
   log("info", `[merge] 聚合原始数据完成: 总计 ${mergedList.length} 条 (${statDetails})`);

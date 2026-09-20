@@ -28,7 +28,7 @@ internal fun SourceOrderList(
 ) {
     val currentOrder by rememberUpdatedState(order)
     val updateOrder by rememberUpdatedState(onOrder)
-    val rowHeight = with(LocalDensity.current) { 48.dp.toPx() }
+    val rowHeight = with(LocalDensity.current) { 72.dp.toPx() }
     var active by remember { mutableStateOf<String?>(null) }
     var dragTop by remember { mutableFloatStateOf(0f) }
     // Keep composition/gesture ownership stable; only the visual slots change.
@@ -42,7 +42,7 @@ internal fun SourceOrderList(
         }
     }
     Surface(shape=RoundedCornerShape(20.dp), color=MaterialTheme.colorScheme.surfaceContainerLow) {
-        Box(Modifier.fillMaxWidth().padding(vertical=8.dp).height(48.dp * order.size)) {
+        Box(Modifier.fillMaxWidth().height(72.dp * order.size)) {
             identities.forEach { id -> key(id) {
                 val dragging = active == id
                 val position = order.indexOf(id)
@@ -50,7 +50,7 @@ internal fun SourceOrderList(
                 val target = if (dragging) dragTop else position * rowHeight
                 val animatedTop by animateFloatAsState(target, spring(dampingRatio=1f, stiffness=700f), label="source position")
                 Row(
-                    Modifier.fillMaxWidth().height(48.dp).padding(horizontal=8.dp)
+                    Modifier.fillMaxWidth().height(72.dp).padding(horizontal=8.dp)
                         .zIndex(if(dragging) 1f else 0f)
                         .graphicsLayer { translationY=if(dragging) dragTop else animatedTop }
                         .background(if(dragging) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow, RoundedCornerShape(12.dp)),
@@ -83,9 +83,12 @@ internal fun SourceOrderList(
                     }, contentAlignment=Alignment.Center) {
                         Icon(Icons.Rounded.DragHandle,"拖动调整${sourceByKey(id).label}优先级", tint=MaterialTheme.colorScheme.primary)
                     }
-                    Checkbox(id in enabled, { onEnabled(id,it) })
-                    Text(sourceByKey(id).label, style=MaterialTheme.typography.bodyLarge,
-                        color=if(id in enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=.5f))
+                    Column(Modifier.weight(1f)) {
+                        Text(sourceByKey(id).label, style=MaterialTheme.typography.bodyLarge,
+                            color=if(id in enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=.5f))
+                        Text("优先级 ${position+1}", style=MaterialTheme.typography.bodySmall, color=MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(id in enabled, { onEnabled(id,it) })
                 }
             } }
         }
