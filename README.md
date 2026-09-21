@@ -69,6 +69,12 @@ API Token 用于播放器访问；管理 Token 用于管理功能，不应填写
 
 ## 源码与构建
 
+### 反馈与自动检查
+
+遇到问题或有功能建议，请使用 [Issues 模板](https://github.com/maoxiaoc/LogVar-Android-App/issues/new/choose)，并移除 Token、Cookie、完整 API 地址和个人信息。个人项目不承诺响应或修复时间。
+
+GitHub Actions 会在 main 更新及 Pull Request 时运行缓存、请求隔离、网络地址和拖拽逻辑的基础测试；这不代替 Android 构建或真机验证。自动检查只使用只读仓库权限，不读取签名密钥，也不发布 APK。Dependabot 安全修复需人工检查、测试后合并，不自动合并。
+
 仓库根目录就是 Android 工程：
 
 ```text

@@ -1,0 +1,40 @@
+name: 基础检查
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regression:
+    name: 缓存、网络地址与拖拽回归测试
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: 安装锁定依赖（不运行安装脚本）
+        run: |
+          npm ci --prefix server --omit=dev --ignore-scripts --no-audit --no-fund
+          ln -s "$GITHUB_WORKSPACE/server/node_modules" app/src/main/assets/nodejs-project/node_modules
+      - name: 缓存与请求隔离
+        run: node tests/mobile-resources.mjs
+      - name: 网络地址与来源拖拽
+        run: |
+          mkdir -p "$RUNNER_TEMP/logvar-checks"
+          javac -d "$RUNNER_TEMP/logvar-checks" app/src/main/java/app/logvar/ShareAddressPolicy.java app/src/main/java/app/logvar/SourceDrag.java tests/ShareAddressCheck.java tests/SourceDragCheck.java
+          java -cp "$RUNNER_TEMP/logvar-checks" ShareAddressCheck
+          java -cp "$RUNNER_TEMP/logvar-checks" SourceDragCheck
