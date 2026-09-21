@@ -3,7 +3,9 @@ import { jsonResponse } from "../utils/http-util.js";
 import { HTML_TEMPLATE } from "../ui/template.js";
 import { formatLogMessage, log } from "../utils/log-util.js";
 import { HandlerFactory } from "../configs/handlers/handler-factory.js";
-import { clearBangumiDataCache, initBangumiData } from "../utils/bangumi-data-util.js";
+import { clearBangumiDataCache } from "../utils/bangumi-data-util.js";
+import fs from "fs";
+import path from "path";
 
 const UI_THEMES = new Set([
   'lavender', 'shinyo', 'sakura', 'tianyi', 'hatsune', 'sakuragi', 'violet', 'amber'
@@ -180,26 +182,14 @@ export async function handleClearCache(req) {
     episodeNum: () => { globals.episodeNum = 10001; }, // 重置为初始值
     lastSelectMap: () => { globals.lastSelectMap = new Map(); }, // 重新创建 Map 对象
     // 清理搜索和弹幕缓存
-    searchCache: () => { globals.searchCache = new Map(); },
-    commentCache: () => { globals.commentCache = new Map(); },
+    searchCache: () => { globals.searchCache.clear(); },
+    commentCache: () => { globals.commentCache.clear(); },
     requestHistory: () => {
       globals.requestHistory = new Map();
       globals.reqRecords = []; // 清空请求记录
       globals.todayReqNum = 0; // 重置今日请求次数
     },
-    bangumiData: () => {
-      try {
-        clearBangumiDataCache(true); // 清理 Bangumi-Data 内存与磁盘缓存
-        if (globals.useBangumiData) {
-          // 触发异步数据重载
-          initBangumiData(globals.deployPlatform, false).catch(e => {
-            log("warn", `[system] [server] Bangumi-Data background reload failed: ${e.message}`);
-          });
-        }
-      } catch (e) {
-        log("error", `[system] [server] Failed to clear Bangumi-Data cache: ${e.message}`);
-      }
-    }
+    bangumiData: () => { clearBangumiDataCache(true); }
   };
   const allItems = Object.keys(clearActions);
 
@@ -278,6 +268,15 @@ export async function handleClearCache(req) {
     log("error", `[system] [server] Cache clear failed: ${error.message}`);
     return jsonResponse({ success: false, message: `Cache clear failed: ${error.message}` }, 500);
   }
+}
+
+export function handleCacheStats() {
+  const file = path.join(process.cwd(), ".cache", "bangumi-data-cache.json");
+  return jsonResponse({ success: true, cache: {
+    search: Number.isFinite(globals.searchCache?.bytes) ? globals.searchCache.bytes : 0,
+    comments: Number.isFinite(globals.commentCache?.bytes) ? globals.commentCache.bytes : 0,
+    matching: fs.existsSync(file) ? fs.statSync(file).size : 0
+  } }, 200);
 }
 
 // 隐藏接口 URL 查询串中的参数值，保留路径与参数名（key=value -> key=***）

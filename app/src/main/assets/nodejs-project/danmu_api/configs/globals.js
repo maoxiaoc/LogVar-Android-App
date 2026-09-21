@@ -1,4 +1,6 @@
 import { Envs } from './envs.js';
+import { AsyncLocalStorage } from 'node:async_hooks';
+export const sourceCheckContext = new AsyncLocalStorage();
 import { ResourceCache } from '../utils/mobile-resources.js';
 
 const mobile = globalThis.process?.env?.LOGVAR_ANDROID === '1';
@@ -166,6 +168,8 @@ export const Globals = {
     const self = this;
     this._configProxy = new Proxy({}, {
       get(target, prop) {
+        const overrides = sourceCheckContext.getStore();
+        if (overrides && Object.hasOwn(overrides, prop)) return overrides[prop];
         // 优先返回 envs 中的属性（保持原有的平铺效果）
         if (prop in self.envs) {
           return self.envs[prop];

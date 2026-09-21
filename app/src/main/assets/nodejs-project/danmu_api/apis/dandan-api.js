@@ -467,7 +467,7 @@ async function searchAnimeBody(url, preferAnimeId = null, preferSource = null, d
   const cacheKey = querySeason !== null ? `${queryTitle}_S${querySeason}` : queryTitle;
 
   // 收藏缓存命中后必须直接返回，不能因目标集数判断继续请求外部源。
-  if (!forceRefresh && resolveFavoriteForSearchKeyword(cacheKey)) {
+  if (!globals.sourceCheck && !forceRefresh && resolveFavoriteForSearchKeyword(cacheKey)) {
     const favoriteResults = getSearchCache(cacheKey, requestAnimeDetailsMap) || [];
     return jsonResponse({
       errorCode: 0,

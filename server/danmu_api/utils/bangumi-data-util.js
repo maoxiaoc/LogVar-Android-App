@@ -221,6 +221,7 @@ export function extendBangumiDownloadLifecycle(ctx) {
 }
 
 // 发起后台静默下载并记录在途 Promise：下载完成时复位状态，供 getBackgroundDownload 暴露给边缘层
+let cacheGeneration = 0;
 function startDownload(cachePath) {
     isDownloading = true;
     downloadLockTime = Date.now();
@@ -420,6 +421,7 @@ function pruneBangumiData(rawData) {
  * @returns {Promise<void>}
  */
 async function downloadAndCache(cachePath) {
+    const generation = cacheGeneration;
     log("info", "[system] [Bangumi-Data] 开始优选节点下载最新数据并执行精简...");
     try {
         const memBefore = process.memoryUsage().heapUsed;
@@ -429,6 +431,7 @@ async function downloadAndCache(cachePath) {
 
         // 每次重新下载时检测版本号以选择数据源
         activeDataSource = await selectBestDataSource();
+        if (generation !== cacheGeneration) return;
         const CDNS = CDN_SOURCES[activeDataSource] || CDN_SOURCES.custom;
 
         const fetchOptions = {
@@ -454,7 +457,7 @@ async function downloadAndCache(cachePath) {
             const resultData = await response.json();
             const originalCount = resultData.items ? resultData.items.length : 0;
 
-            if (controller.signal.aborted) throw new Error('Aborted before parsing');
+            if (controller.signal.aborted || generation !== cacheGeneration) throw new Error('Cache cleared during download');
 
             // 立即执行数据裁剪以释放内存
             const localParseStartTime = Date.now();
@@ -475,6 +478,10 @@ async function downloadAndCache(cachePath) {
 
         // Promise.any 会等待第一个完全执行完毕的 Promise
         const winner = await Promise.any(racePromises);
+        if (generation !== cacheGeneration) {
+            controllers.forEach(controller => controller.abort());
+            return;
+        }
 
         // 首个下载完成后，立刻中断所有落后者的网络请求
         controllers.forEach((ctrl, i) => {
@@ -819,6 +826,7 @@ export function dedupeBangumiSearchResults(results, keyword) {
  * @param {boolean} clearDisk - 是否同步清理物理磁盘文件
  */
 export function clearBangumiDataCache(clearDisk = false) {
+    cacheGeneration++;
     if (memoryCache !== null) {
         const itemCount = memoryCache.items ? memoryCache.items.length : 0;
         memoryCache = null; // 切断引用，等待 GC 回收
@@ -833,18 +841,12 @@ export function clearBangumiDataCache(clearDisk = false) {
 
     // 同步清理物理磁盘缓存文件及其并发临时文件
     if (clearDisk && fs.existsSync(CACHE_DIR)) {
-        try {
-            const cachePath = path.join(CACHE_DIR, CACHE_FILENAME);
-            if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
-            
-            // 清理可能存在的并发流临时文件
-            for (let i = 0; i < 5; i++) {
-                const tmpPath = `${cachePath}.tmp${i}`;
-                if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
-            }
-            log("info", `[system] [Bangumi-Data] 磁盘缓存已同步清理`);
-        } catch (e) {
-            log("error", `[system] [Bangumi-Data] 磁盘缓存清理失败: ${e.message}`);
+        const cachePath = path.join(CACHE_DIR, CACHE_FILENAME);
+        if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
+        for (let i = 0; i < 5; i++) {
+            const tmpPath = `${cachePath}.tmp${i}`;
+            if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
         }
+        log("info", `[system] [Bangumi-Data] 磁盘缓存已同步清理`);
     }
 }

@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { ResourceCache, mapLimited } from '../app/src/main/assets/nodejs-project/danmu_api/utils/mobile-resources.js';
+import { globals, sourceCheckContext } from '../app/src/main/assets/nodejs-project/danmu_api/configs/globals.js';
+import { handleClearCache, handleCacheStats } from '../app/src/main/assets/nodejs-project/danmu_api/apis/system-api.js';
+import { getSearchCache, setSearchCache } from '../app/src/main/assets/nodejs-project/danmu_api/utils/cache-util.js';
 const cache = new ResourceCache(2, 2048, () => 40);
 const entry = data => ({ data, timestamp: Date.now() });
 cache.set('a', entry('a')).set('b', entry('b')).set('c', entry('c'));
@@ -14,6 +17,31 @@ assert.equal(cache.size, 0);
 assert.equal(cache.bytes, 0);
 cache.set('a', entry('a')); cache.clear();
 assert.equal(cache.bytes, 0);
+const oldSearch = globals.searchCache, oldComments = globals.commentCache;
+const search = new ResourceCache(8, 4096, () => 60_000), comments = new ResourceCache(2, 2048, () => 60_000);
+search.set('a', entry('a')); comments.set('b', entry('b'));
+globals.searchCache = search; globals.commentCache = comments;
+try {
+  const stats = await handleCacheStats().json();
+  assert.equal(stats.cache.search, search.bytes);
+  assert.equal(stats.cache.comments, comments.bytes);
+  assert.ok(stats.cache.search > 0);
+  const originalOrder = globals.sourceOrderArr;
+  setSearchCache('isolation-check', ['normal']);
+  await Promise.all(['tencent', 'iqiyi'].map(source => sourceCheckContext.run({sourceCheck: source, sourceOrderArr: [source]}, async () => {
+    assert.equal(getSearchCache('isolation-check'), null);
+    setSearchCache('isolation-check', [source]);
+    await new Promise(resolve => setTimeout(resolve, 5));
+    assert.deepEqual(globals.sourceOrderArr, [source]);
+    assert.deepEqual(getSearchCache('isolation-check'), [source]);
+  })));
+  assert.equal(globals.sourceOrderArr, originalOrder);
+  assert.deepEqual(getSearchCache('isolation-check'), ['normal']);
+  const response = await handleClearCache(new Request('http://localhost', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: ['searchCache', 'commentCache'] }) }));
+  assert.equal(response.ok, true);
+  assert.equal(globals.searchCache, search); assert.equal(globals.commentCache, comments);
+  assert.equal(search.bytes, 0); assert.equal(comments.bytes, 0);
+} finally { globals.searchCache = oldSearch; globals.commentCache = oldComments; }
 let active = 0, peak = 0;
 const result = await mapLimited([4, 3, 2, 1], 2, async value => {
   peak = Math.max(peak, ++active);
@@ -24,4 +52,4 @@ const result = await mapLimited([4, 3, 2, 1], 2, async value => {
 assert.deepEqual(result, [8, 6, 4, 2]);
 assert.equal(peak, 2);
 assert.deepEqual(await mapLimited([], 2, async x => x), []);
-console.log('Cache budget, expiry, and ordered concurrency checks passed.');
+console.log('Cache budget, clear, expiry, and ordered concurrency checks passed.');

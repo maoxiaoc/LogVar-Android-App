@@ -286,6 +286,7 @@ export function resolveEpisodeContextById(id, detailStore = null) {
 }
 // 检查搜索缓存是否有效（未过期）
 export function isSearchCacheValid(keyword) {
+    keyword = sourceSearchKey(keyword);
     if (resolveFavoriteForSearchKeyword(keyword)) {
         return true;
     }
@@ -311,7 +312,7 @@ export function isSearchCacheValid(keyword) {
 // 获取搜索缓存
 export function getSearchCache(keyword, detailsMap = null) {
     // 收藏剧集永久缓存优先命中（无 TTL、无数量上限）
-    const favorite = resolveFavoriteForSearchKeyword(keyword);
+    const favorite = globals.sourceCheck ? null : resolveFavoriteForSearchKeyword(keyword);
     if (favorite) {
         const favoriteEntry = favorite.entry;
         log("info", `[cache] Using favorite cache for "${keyword}"`);
@@ -325,7 +326,7 @@ export function getSearchCache(keyword, detailsMap = null) {
 
     if (isSearchCacheValid(keyword)) {
         log("info", `[cache] Using search cache for "${keyword}"`);
-        const cached = globals.searchCache.get(keyword);
+        const cached = globals.searchCache.get(sourceSearchKey(keyword));
 
         if (detailsMap instanceof Map && Array.isArray(cached.details)) {
             cached.details.forEach(anime => {
@@ -340,6 +341,7 @@ export function getSearchCache(keyword, detailsMap = null) {
 
 // 设置搜索缓存
 export function setSearchCache(keyword, results, detailsMap = null) {
+    keyword = sourceSearchKey(keyword);
     const details = collectUniqueAnimeDetails(detailsMap);
 
     // 写入前先清理所有过期条目
@@ -359,6 +361,10 @@ export function setSearchCache(keyword, results, detailsMap = null) {
     }
 
     log("info", `[cache] Cached search results for "${keyword}" (${results.length} animes)`);
+}
+
+function sourceSearchKey(keyword) {
+    return globals.sourceCheck ? `source-check:${globals.sourceCheck}:${keyword}` : keyword;
 }
 
 // 检查弹幕缓存是否有效（未过期）

@@ -49,7 +49,7 @@ import java.util.UUID
 private enum class Page { HOME, SOURCES, SOURCE_RESULTS, TOOLS, SETTINGS, ABOUT }
 private enum class SourceMode { PRIORITY, MERGE, MOST }
 internal data class Source(val key: String, val label: String, val platform: String, val keyword: String)
-private data class CacheSizes(val search: Long, val comments: Long, val matching: Long) { val total get() = search + comments + matching }
+private data class CacheSizes(val search: Long, val comments: Long, val matching: Long, val temporary: Long = 0) { val total get() = if (search < 0 || comments < 0) -1L else search + comments + matching + temporary }
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,6 +102,15 @@ class MainActivity : ComponentActivity() {
     try { snapshot = withContext(Dispatchers.IO) { store.prepare() } }
     catch(e: Exception) { snapshot = withContext(Dispatchers.IO) { store.snapshot() }; snackbar = e.message ?: "服务准备失败，请重新启动" }
     ready = true
+  }
+  LaunchedEffect(page, ready) {
+    if (ready && page == Page.HOME) {
+      (context as ComponentActivity).lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+        val updated = withContext(Dispatchers.IO) { store.cache() }
+        snapshot = snapshot.copy(cache = updated)
+        kotlinx.coroutines.awaitCancellation()
+      }
+    }
   }
   MaterialTheme(colorScheme = colors) {
     val snack = remember { SnackbarHostState() }
@@ -189,7 +198,7 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
   Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())){AppBar("弹幕策略",onBack);Column(Modifier.padding(horizontal=16.dp)){
     Text("多源结果怎么显示？",style=MaterialTheme.typography.titleLarge);Spacer(Modifier.height(10.dp))
     Card(shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)){Column{SourceMode.entries.forEach{item->Row(Modifier.fillMaxWidth().clickable{onMode(item)}.padding(horizontal=12.dp,vertical=8.dp),verticalAlignment=Alignment.CenterVertically){RadioButton(mode==item,{onMode(item)});Column(Modifier.padding(start=4.dp)){Text(item.label,style=MaterialTheme.typography.bodyLarge);Text(item.description,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}}}}}
-    Spacer(Modifier.height(16.dp));Card(modifier=Modifier.fillMaxWidth(),shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.primaryContainer)){Column(Modifier.padding(16.dp)){Text("当前选择",style=MaterialTheme.typography.titleMedium);Text(if(mode==SourceMode.MOST)"适合希望弹幕丰富、又不想混合多个平台内容的情况。" else mode.description,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)}}
+    Spacer(Modifier.height(16.dp));Card(modifier=Modifier.fillMaxWidth(),shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.primaryContainer)){Column(Modifier.padding(16.dp)){Text("当前选择",style=MaterialTheme.typography.titleMedium);Text(if(mode==SourceMode.MOST)"只显示弹幕最多的来源" else mode.description,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)}}
     Spacer(Modifier.height(20.dp));Text("来源检测",style=MaterialTheme.typography.titleMedium);Text("验证搜索、分集读取和弹幕下载",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant);Spacer(Modifier.height(8.dp))
     FilledTonalButton(onDetect,Modifier.fillMaxWidth().height(56.dp),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.NetworkCheck,null);Spacer(Modifier.width(8.dp));Text("检测已启用来源")}
     Spacer(Modifier.height(16.dp));Button(onApply,Modifier.fillMaxWidth().height(56.dp),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.Check,null);Spacer(Modifier.width(8.dp));Text("应用策略")};Spacer(Modifier.height(16.dp))
@@ -219,6 +228,7 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
 @Composable private fun ToolsScreen(store:ServiceStore, initial:ServiceSnapshot,onBack:()->Unit,onSnapshot:(ServiceSnapshot)->Unit,onSnack:(String)->Unit,modifier:Modifier){
   val scope=rememberCoroutineScope()
   var sizes by remember{mutableStateOf(initial.cache)}
+  LaunchedEffect(initial.cache) { sizes = initial.cache }
   var clearing by remember{mutableStateOf(false)}
   fun clear(key:String?, name:String) {
     if(clearing) return
@@ -228,7 +238,7 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
         val updated=withContext(Dispatchers.IO){store.clearCache(key);store.snapshot()}
         sizes=updated.cache
         onSnapshot(updated)
-        onSnack("${name}已清理")
+        onSnack(if (sizes.total < 0) "${name}已清理，服务缓存大小暂时无法读取" else "${name}已清理")
       } catch(e:Exception) {
         onSnack(e.message ?: "清理失败，请重试")
       } finally { clearing=false }
@@ -238,11 +248,13 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
     AppBar("缓存管理", onBack)
     Column(Modifier.padding(horizontal=16.dp)){
       Text("缓存清理",style=MaterialTheme.typography.headlineSmall)
+      Text("搜索与弹幕为内存估算；匹配数据与应用临时缓存为磁盘大小。", style=MaterialTheme.typography.bodySmall)
       Spacer(Modifier.height(12.dp))
       Column(verticalArrangement=Arrangement.spacedBy(3.dp)){
         CacheSummaryLine("搜索缓存",sizes.search,Icons.Rounded.Search,RoundedCornerShape(topStart=28.dp,topEnd=28.dp,bottomStart=8.dp,bottomEnd=8.dp),!clearing){clear("searchCache","搜索缓存")}
         CacheSummaryLine("弹幕缓存",sizes.comments,Icons.Rounded.Chat,RoundedCornerShape(8.dp),!clearing){clear("commentCache","弹幕缓存")}
         CacheSummaryLine("匹配数据缓存",sizes.matching,Icons.Rounded.Link,RoundedCornerShape(topStart=8.dp,topEnd=8.dp,bottomStart=28.dp,bottomEnd=28.dp),!clearing){clear("bangumiData","匹配数据缓存")}
+        CacheSummaryLine("应用临时缓存",sizes.temporary,Icons.Rounded.Storage,RoundedCornerShape(20.dp),!clearing){clear("temporary","应用临时缓存")}
       }
       Spacer(Modifier.height(16.dp))
       OutlinedButton(onClick={clear(null,"全部缓存")},enabled=!clearing,modifier=Modifier.fillMaxWidth().height(56.dp)){
@@ -298,7 +310,7 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
 @Composable private fun BottomTabs(page:Page,onPage:(Page)->Unit){NavigationBar{listOf(Page.HOME to ("首页" to Icons.Rounded.Home),Page.SOURCES to ("弹幕源" to Icons.Rounded.VideoLibrary),Page.SETTINGS to ("设置" to Icons.Rounded.Settings)).forEach{(p,x)->NavigationBarItem(selected=page==p || (page==Page.SOURCE_RESULTS && p==Page.SOURCES),onClick={onPage(p)},icon={Icon(x.second,null)},label={Text(x.first)})}}}
 
 private fun fallbackColors()=lightColorScheme(primary=Color(0xFF0B57D0),onPrimary=Color.White,primaryContainer=Color(0xFFD3E3FD),onPrimaryContainer=Color(0xFF041E49),secondary=Color(0xFF5A5C7C),secondaryContainer=Color(0xFFDCE2F9),onSecondaryContainer=Color(0xFF131C2B),tertiaryContainer=Color(0xFFFFD8EE),onTertiaryContainer=Color(0xFF2E1125),surface=Color(0xFFFAF9FD),surfaceContainerLow=Color(0xFFF3F3FA),surfaceContainer=Color(0xFFEEEDF3),surfaceContainerHigh=Color(0xFFE9E8EF),surfaceContainerHighest=Color(0xFFE3E2E6),onSurface=Color(0xFF1B1B1F),onSurfaceVariant=Color(0xFF44474E),outline=Color(0xFF74777F),outlineVariant=Color(0xFFC4C6D0),inverseSurface=Color(0xFF303034),inverseOnSurface=Color(0xFFF2F0F4),inversePrimary=Color(0xFFA8C7FA),error=Color(0xFFB3261E),onError=Color.White,errorContainer=Color(0xFFF9DEDC),onErrorContainer=Color(0xFF410E0B))
-private fun formatBytes(bytes:Long)=if(bytes<1024*1024)"${bytes/1024} KB" else "${"%.1f".format(bytes/1024f/1024f)} MB"
+private fun formatBytes(bytes:Long)=when { bytes < 0 -> "暂时无法读取"; bytes < 1024 -> "$bytes B"; bytes < 1024*1024 -> "${"%.1f".format(bytes/1024.0)} KB"; else -> "${"%.1f".format(bytes/1024.0/1024.0)} MB" }
 private fun copy(context:Context,value:String,done:(String)->Unit){(context.getSystemService(Context.CLIPBOARD_SERVICE)as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Logvar",value));done("已复制")}
 private val sourceList=listOf(Source("tencent","腾讯视频","qq","斗罗大陆系列小剧场"),Source("iqiyi","爱奇艺","qiyi","苍兰诀第2季"),Source("bilibili","B站","bilibili1","我的三体第四季"),Source("dandan","弹弹play","dandan","博人传之火影次世代"),Source("imgo","芒果 TV","imgo","大侦探第十一季"),Source("youku","优酷","youku","少年白马醉春风"),Source("renren","人人视频","renren","爱情怎么翻译"))
 internal fun sourceByKey(key:String)=sourceList.first{it.key==key}
@@ -350,40 +362,52 @@ private class ServiceStore(private val context: Context) {
   fun flag(key: String, default: Boolean) = prefs.getBoolean(key, default)
   fun setFlag(key: String, value: Boolean) { prefs.edit().putBoolean(key, value).apply() }
   fun cache(): CacheSizes {
-    val base = File(root, ".cache")
-    return CacheSizes(size(File(base, "searchCache")), size(File(base, "commentCache")), size(File(base, "bangumiData")))
+    val temporary = size(context.cacheDir) + size(context.codeCacheDir)
+    val matching = size(File(root, ".cache/bangumi-data-cache.json"))
+    try {
+      val cache = org.json.JSONObject(get("/api/cache/stats")).getJSONObject("cache")
+      return CacheSizes(cache.getLong("search"), cache.getLong("comments"), matching, temporary)
+    } catch (_: Exception) { }
+    return CacheSizes(-1, -1, matching, temporary)
   }
   @Synchronized fun clearCache(item: String?) {
-    post("/api/cache/clear", if (item == null) "{}" else "{\"items\":[\"$item\"]}")
+    if (item != "temporary") {
+      val items = if (item == null) listOf("searchCache", "commentCache", "bangumiData") else listOf(item)
+      post("/api/cache/clear", org.json.JSONObject().put("items", org.json.JSONArray(items)).toString())
+    }
+    if (item == null || item == "temporary") {
+      for (directory in listOf(context.cacheDir, context.codeCacheDir)) {
+        val base = directory.canonicalFile
+        fun remove(file: File) {
+          check(file.canonicalPath.startsWith(base.path + File.separator)) { "缓存路径异常" }
+          if (file.isDirectory) (file.listFiles() ?: error("无法读取缓存目录")).forEach(::remove)
+          check(file.delete() || !file.exists()) { "部分临时缓存清理失败，请重试" }
+        }
+        (base.listFiles() ?: if (!base.exists()) emptyArray<File>() else error("无法读取缓存目录")).forEach(::remove)
+      }
+    }
   }
   @Synchronized fun testSources(keys: List<String>): Map<String, String> {
-    val original = listOf("SOURCE_ORDER", "PLATFORM_ORDER", "MERGE_SOURCE_PAIRS", "MAX_DANMU_SOURCE").associateWith { env(it) }
     val wasRunning = ServiceLifecycle.running()
     val result = linkedMapOf<String, String>()
     try {
+      if (!wasRunning) setRunning(true)
       keys.forEach { key ->
         try {
           val source = sourceByKey(key)
-          setRunning(false)
-          setEnv("SOURCE_ORDER", key)
-          setEnv("PLATFORM_ORDER", source.platform)
-          setEnv("MERGE_SOURCE_PAIRS", "")
-          setEnv("MAX_DANMU_SOURCE", "false")
-          setRunning(true)
-          val anime = org.json.JSONObject(getRetry("/api/v2/search/anime?keyword=" + URLEncoder.encode(source.keyword, "UTF-8")))
+          val check = "checkSource=" + URLEncoder.encode(key, "UTF-8")
+          val anime = org.json.JSONObject(getRetry("/api/v2/search/anime?$check&keyword=" + URLEncoder.encode(source.keyword, "UTF-8")))
             .getJSONArray("animes").getJSONObject(0).getString("animeId")
-          val episode = org.json.JSONObject(getRetry("/api/v2/bangumi/$anime"))
+          val episode = org.json.JSONObject(getRetry("/api/v2/bangumi/$anime?$check"))
             .getJSONObject("bangumi").getJSONArray("episodes").getJSONObject(0).getString("episodeId")
-          val count = commentCount("/api/v2/comment/$episode?format=json")
+          val count = commentCount("/api/v2/comment/$episode?format=json&$check")
           result[key] = if (count > 0) "正常 · $count 条" else "无弹幕 · 0 条"
         } catch (e: Exception) {
           result[key] = "失败 · ${e.message ?: "请求异常"}"
         }
       }
     } finally {
-      setRunning(false)
-      original.forEach { (key, value) -> setEnv(key, value) }
-      if (wasRunning) setRunning(true)
+      if (!wasRunning) setRunning(false)
     }
     return result
   }
@@ -440,7 +464,7 @@ private class ServiceStore(private val context: Context) {
       connection.inputStream.close()
     } finally { connection.disconnect() }
   }
-  private fun size(file: File): Long = file.listFiles()?.sumOf { if (it.isDirectory) size(it) else it.length() } ?: 0L
+  private fun size(file: File): Long = when { !file.exists() -> 0L; file.isFile -> file.length(); else -> file.listFiles()?.sumOf(::size) ?: 0L }
   private fun copyAssets(from: String, to: File) {
     val entries = context.assets.list(from) ?: return
     if (entries.isEmpty()) {
