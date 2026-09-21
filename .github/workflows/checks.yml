@@ -31,10 +31,14 @@ jobs:
           npm ci --prefix server --omit=dev --ignore-scripts --no-audit --no-fund
           ln -s "$GITHUB_WORKSPACE/server/node_modules" app/src/main/assets/nodejs-project/node_modules
       - name: 缓存与请求隔离
-        run: node tests/mobile-resources.mjs
+        run: |
+          node tests/mobile-resources.mjs
+          node tests/layout-insets.mjs
       - name: 网络地址与来源拖拽
         run: |
           mkdir -p "$RUNNER_TEMP/logvar-checks"
           javac -d "$RUNNER_TEMP/logvar-checks" app/src/main/java/app/logvar/ShareAddressPolicy.java app/src/main/java/app/logvar/SourceDrag.java tests/ShareAddressCheck.java tests/SourceDragCheck.java
           java -cp "$RUNNER_TEMP/logvar-checks" ShareAddressCheck
           java -cp "$RUNNER_TEMP/logvar-checks" SourceDragCheck
+          javac -d "$RUNNER_TEMP/logvar-checks" app/src/main/java/app/logvar/LayoutPolicy.java tests/LayoutPolicyCheck.java
+          java -cp "$RUNNER_TEMP/logvar-checks" LayoutPolicyCheck

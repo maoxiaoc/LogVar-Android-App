@@ -5,7 +5,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.view.Window
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.SystemBarStyle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,13 +50,18 @@ import java.util.UUID
 
 private enum class Page { HOME, SOURCES, SOURCE_RESULTS, TOOLS, SETTINGS, ABOUT }
 private enum class SourceMode { PRIORITY, MERGE, MOST }
+internal val LocalCompactUi = staticCompositionLocalOf { false }
+@Composable private fun actionHeight() = if (LocalCompactUi.current) 48.dp else 56.dp
 internal data class Source(val key: String, val label: String, val platform: String, val keyword: String)
 private data class CacheSizes(val search: Long, val comments: Long, val matching: Long, val temporary: Long = 0) { val total get() = if (search < 0 || comments < 0) -1L else search + comments + matching + temporary }
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    window.setSoftInputMode(Window.FEATURE_NO_TITLE)
+    enableEdgeToEdge(
+      statusBarStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT),
+      navigationBarStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+    )
     setContent { LogvarApp() }
     if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
       requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
@@ -70,8 +77,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable private fun LogvarApp() {
   val context = LocalContext.current
-  var snackbar by remember { mutableStateOf<String?>(null) }
-  val scope = rememberCoroutineScope { kotlinx.coroutines.CoroutineExceptionHandler { _, error -> snackbar = error.message ?: "操作失败，请重试" } }
+  var snackbar by remember { mutableStateOf<AppNotice?>(null) }
+  val scope = rememberCoroutineScope { kotlinx.coroutines.CoroutineExceptionHandler { _, error -> snackbar = AppNotice(error.message ?: "操作失败，请重试", NoticeKind.ERROR) } }
   val store = remember { ServiceStore(context) }
   var ready by remember { mutableStateOf(false) }
   var page by remember { mutableStateOf(Page.HOME) }
@@ -100,7 +107,7 @@ class MainActivity : ComponentActivity() {
   val colors = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) dynamicLightColorScheme(context) else fallbackColors()
   LaunchedEffect(Unit) {
     try { snapshot = withContext(Dispatchers.IO) { store.prepare() } }
-    catch(e: Exception) { snapshot = withContext(Dispatchers.IO) { store.snapshot() }; snackbar = e.message ?: "服务准备失败，请重新启动" }
+    catch(e: Exception) { snapshot = withContext(Dispatchers.IO) { store.snapshot() }; snackbar = AppNotice(e.message ?: "服务准备失败，请重新启动", NoticeKind.ERROR) }
     ready = true
   }
   LaunchedEffect(page, ready) {
@@ -117,23 +124,33 @@ class MainActivity : ComponentActivity() {
     LaunchedEffect(snackbar) { snackbar?.let { snack.showSnackbar(it); snackbar = null } }
     if (!ready) { LoadingScreen(); return@MaterialTheme }
     BackHandler(enabled = page != Page.HOME) { if (page != Page.SETTINGS) onBack() }
+    Box(Modifier.fillMaxSize()) {
     Scaffold(
-      snackbarHost = { SnackbarHost(snack) },
       bottomBar = { if (page in setOf(Page.HOME, Page.SOURCES, Page.SOURCE_RESULTS, Page.SETTINGS)) BottomTabs(page) { page = it } }
     ) { padding ->
+      BoxWithConstraints(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)) {
+      val compact = LayoutPolicy.compact( maxWidth.value, maxHeight.value, LocalDensity.current.fontScale)
+      CompositionLocalProvider(LocalCompactUi provides compact) {
       AnimatedContent(page, transitionSpec = { fadeIn(spring()) togetherWith fadeOut(spring()) }) { screen ->
         when (screen) {
-          Page.HOME -> HomeScreen(displaySnapshot, onSources = { page = Page.SOURCES }, onTools = { page = Page.TOOLS }, onCopy = { copy(context, displaySnapshot.apiUrl) { snackbar = it } }, onStart = { scope.launch { try { snapshot=withContext(Dispatchers.IO) { store.setRunning(true); store.snapshot() }; snackbar="已启动完成" } catch(e:Exception) { snackbar=e.message ?: "启动失败" } } }, onStop = { scope.launch { try { snapshot=withContext(Dispatchers.IO) { store.setRunning(false); store.snapshot() }; snackbar="服务已停止" } catch(e:Exception) { snackbar=e.message ?: "停止失败" } } }, modifier = Modifier.padding(padding))
-          Page.SOURCES -> SourcesScreen(store, snapshot, onSnapshot = { snapshot=it }, onSnack = { snackbar=it }, onDetect = { keys -> sourceResults=emptyMap(); sourceDetecting=true; page=Page.SOURCE_RESULTS; scope.launch { try { sourceResults=withContext(Dispatchers.IO) { store.testSources(keys) } } finally { sourceDetecting=false } } }, modifier = Modifier.padding(padding))
-          Page.SOURCE_RESULTS -> SourceResultsScreen(sourceResults, sourceDetecting, onBack = onBack, onRedetect = { val keys=snapshot.sources.filter { it.enabled }.map { it.key }; sourceResults=emptyMap(); sourceDetecting=true; scope.launch { try { sourceResults=withContext(Dispatchers.IO) { store.testSources(keys) } } finally { sourceDetecting=false } } }, modifier = Modifier.padding(padding))
-          Page.TOOLS -> ToolsScreen(store, displaySnapshot, onBack = onBack, onSnapshot = { snapshot=it }, onSnack = { snackbar=it }, modifier = Modifier.padding(padding))
-          Page.SETTINGS -> SettingsScreen(store, snapshot, onAbout = { page=Page.ABOUT }, onSnapshot={snapshot=it}, onSnack={snackbar=it}, modifier=Modifier.padding(padding))
-          Page.ABOUT -> AboutScreen(snapshot, onBack=onBack, modifier=Modifier.padding(padding))
+          Page.HOME -> HomeScreen(displaySnapshot, onSources = { page = Page.SOURCES }, onTools = { page = Page.TOOLS }, onCopy = { copy(context, displaySnapshot.apiUrl) { snackbar = it } }, onStart = { scope.launch { try { snapshot=withContext(Dispatchers.IO) { store.setRunning(true); store.snapshot() }; snackbar=AppNotice("服务已启动") } catch(e:Exception) { snackbar=AppNotice(e.message ?: "启动失败", NoticeKind.ERROR) } } }, onStop = { scope.launch { try { snapshot=withContext(Dispatchers.IO) { store.setRunning(false); store.snapshot() }; snackbar=AppNotice("服务已停止", NoticeKind.STOPPED) } catch(e:Exception) { snackbar=AppNotice(e.message ?: "停止失败", NoticeKind.ERROR) } } }, modifier = Modifier)
+          Page.SOURCES -> SourcesScreen(store, snapshot, onSnapshot = { snapshot=it }, onSnack = { snackbar=it }, onDetect = { keys -> sourceResults=emptyMap(); sourceDetecting=true; page=Page.SOURCE_RESULTS; scope.launch { try { sourceResults=withContext(Dispatchers.IO) { store.testSources(keys) } } finally { sourceDetecting=false } } }, modifier = Modifier)
+          Page.SOURCE_RESULTS -> SourceResultsScreen(sourceResults, sourceDetecting, onBack = onBack, onRedetect = { val keys=snapshot.sources.filter { it.enabled }.map { it.key }; sourceResults=emptyMap(); sourceDetecting=true; scope.launch { try { sourceResults=withContext(Dispatchers.IO) { store.testSources(keys) } } finally { sourceDetecting=false } } }, modifier = Modifier)
+          Page.TOOLS -> ToolsScreen(store, displaySnapshot, onBack = onBack, onSnapshot = { snapshot=it }, onSnack = { snackbar=it }, modifier = Modifier)
+          Page.SETTINGS -> SettingsScreen(store, snapshot, onAbout = { page=Page.ABOUT }, onSnapshot={snapshot=it}, onSnack={snackbar=it}, modifier=Modifier)
+          Page.ABOUT -> AboutScreen(snapshot, onBack=onBack, modifier=Modifier)
         }
       }
     }
   }
 }
+
+      // Keep the notice above the same 80dp navigation clearance, even on pages without tabs.
+      AppSnackbarHost(snack, Modifier.align(Alignment.BottomCenter)
+        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)).padding(bottom = 80.dp))
+      }
+      }
+    }
 
 @Composable private fun LoadingScreen() = Surface(Modifier.fillMaxSize()) { Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.Center) { Text("LogVar", style=MaterialTheme.typography.headlineLarge); Spacer(Modifier.height(12.dp)); Text("正在准备独立弹幕服务…", color=MaterialTheme.colorScheme.onSurfaceVariant) } }
 
@@ -147,17 +164,17 @@ class MainActivity : ComponentActivity() {
     AppBar("首页")
     Column(Modifier.padding(horizontal=16.dp)) {
       Spacer(Modifier.height(8.dp))
-      Card(modifier=Modifier.fillMaxWidth().heightIn(min=314.dp), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) { Column(Modifier.padding(16.dp)) {
+      Card(modifier=Modifier.fillMaxWidth().heightIn(min=if(LocalCompactUi.current) 0.dp else 314.dp), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) { Column(Modifier.padding(if(LocalCompactUi.current) 12.dp else 16.dp)) {
         Text("● $status", style=MaterialTheme.typography.headlineSmall, color=if(s.running) Color(0xFF198038) else MaterialTheme.colorScheme.error)
-        Text(if(s.running) "正在监听局域网请求" else "启动服务后可供局域网设备使用", color=MaterialTheme.colorScheme.onSurfaceVariant); Spacer(Modifier.height(18.dp))
+        Text(if(s.running) "正在监听局域网请求" else "启动服务后可供局域网设备使用", color=MaterialTheme.colorScheme.onSurfaceVariant); Spacer(Modifier.height(if(LocalCompactUi.current) 10.dp else 18.dp))
         Text("API 地址", style=MaterialTheme.typography.labelLarge); Text(if(s.ip.isBlank()) "请开启热点或连接 Wi-Fi" else s.maskedApiUrl, style=MaterialTheme.typography.bodyLarge, maxLines=1, overflow=TextOverflow.Ellipsis); Spacer(Modifier.height(12.dp)); Text(s.networkName, style=MaterialTheme.typography.bodySmall, color=MaterialTheme.colorScheme.onSurfaceVariant)
 
         Spacer(Modifier.height(8.dp))
-        Button(onCopy, Modifier.fillMaxWidth().height(56.dp), enabled=s.ip.isNotBlank(), shape=RoundedCornerShape(28.dp)) { Icon(Icons.Rounded.ContentCopy,null); Spacer(Modifier.width(8.dp)); Text("复制 API 地址") }
-        Spacer(Modifier.height(10.dp)); Row(Modifier.fillMaxWidth().height(56.dp), horizontalArrangement=Arrangement.spacedBy(3.dp)) { OutlinedButton(onStart, Modifier.weight(1f).fillMaxHeight(), enabled=!s.running) { Text("启动服务") }; OutlinedButton({ confirmStop=true }, Modifier.weight(1f).fillMaxHeight(), enabled=s.running) { Text("停止服务") } }
+        Button(onCopy, Modifier.fillMaxWidth().heightIn(min=actionHeight()), enabled=s.ip.isNotBlank(), shape=RoundedCornerShape(28.dp)) { Icon(Icons.Rounded.ContentCopy,null); Spacer(Modifier.width(8.dp)); Text("复制 API 地址") }
+        Spacer(Modifier.height(10.dp)); Row(Modifier.fillMaxWidth().height(actionHeight()), horizontalArrangement=Arrangement.spacedBy(3.dp)) { OutlinedButton(onStart, Modifier.weight(1f).fillMaxHeight(), enabled=!s.running) { Text("启动服务") }; OutlinedButton({ confirmStop=true }, Modifier.weight(1f).fillMaxHeight(), enabled=s.running) { Text("停止服务") } }
       } }
       Spacer(Modifier.height(12.dp)); Text("局域网状态", style=MaterialTheme.typography.titleLarge); Spacer(Modifier.height(8.dp))
-      Card(modifier=Modifier.fillMaxWidth().heightIn(min=124.dp),shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) { Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(10.dp)) { StatusLine("● ${s.networkName}"); StatusLine("● 手机 IP：${s.ip.ifBlank { "暂无" }}"); StatusLine("● 端口 9321 ${if(s.running) "正在监听" else "未监听"}") } }
+      Card(modifier=Modifier.fillMaxWidth().heightIn(min=if(LocalCompactUi.current) 0.dp else 124.dp),shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)) { Column(Modifier.padding(if(LocalCompactUi.current) 12.dp else 16.dp), verticalArrangement=Arrangement.spacedBy(10.dp)) { StatusLine("● ${s.networkName}"); StatusLine("● 手机 IP：${s.ip.ifBlank { "暂无" }}"); StatusLine("● 端口 9321 ${if(s.running) "正在监听" else "未监听"}") } }
       Spacer(Modifier.height(8.dp)); ExpressiveListItem("当前配置", "${s.enabledSources} 个弹幕源 · ${s.mode.label}", Icons.Rounded.ChevronRight, onSources)
       TextButton(onTools, Modifier.fillMaxWidth()) { Text("缓存占用 ${formatBytes(s.cache.total)} · 查看") }
     }
@@ -165,14 +182,14 @@ class MainActivity : ComponentActivity() {
   if (confirmStop) AlertDialog(onDismissRequest={confirmStop=false}, icon={Icon(Icons.Rounded.Info,null,tint=MaterialTheme.colorScheme.error)}, title={Text("停止弹幕服务器？")}, text={Text("局域网设备将暂时无法获取弹幕")}, dismissButton={TextButton({confirmStop=false}){Text("取消")}}, confirmButton={Button({confirmStop=false;onStop()},colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.error)){Text("停止服务")}})
 }
 
-@Composable private fun SourcesScreen(store: ServiceStore, initial: ServiceSnapshot, onSnapshot:(ServiceSnapshot)->Unit, onSnack:(String)->Unit, onDetect:(List<String>)->Unit, modifier: Modifier) {
-  val scope=rememberCoroutineScope { kotlinx.coroutines.CoroutineExceptionHandler { _, error -> onSnack(error.message ?: "操作失败，请重试") } }
+@Composable private fun SourcesScreen(store: ServiceStore, initial: ServiceSnapshot, onSnapshot:(ServiceSnapshot)->Unit, onSnack:(AppNotice)->Unit, onDetect:(List<String>)->Unit, modifier: Modifier) {
+  val scope=rememberCoroutineScope { kotlinx.coroutines.CoroutineExceptionHandler { _, error -> onSnack(AppNotice(error.message ?: "操作失败，请重试", NoticeKind.ERROR)) } }
   var order by remember { mutableStateOf(initial.sources.map { it.key }) }
   var enabled by remember { mutableStateOf(initial.sources.filter { it.enabled }.map { it.key }.toSet()) }
   var mode by remember { mutableStateOf(initial.mode) }
   var strategyOpen by remember { mutableStateOf(false) }
   val changed=order!=initial.sources.map { it.key } || enabled!=initial.sources.filter { it.enabled }.map { it.key }.toSet() || mode!=initial.mode
-  fun applySettings(after:()->Unit={}) { scope.launch { onSnack("正在应用设置并重新启动服务");withContext(Dispatchers.IO){store.saveSources(order,enabled,mode)};onSnapshot(withContext(Dispatchers.IO){store.snapshot()});onSnack("已启动完成");after() } }
+  fun applySettings(after:()->Unit={}) { scope.launch { onSnack(AppNotice("正在应用设置并重新启动服务", NoticeKind.INFO));withContext(Dispatchers.IO){store.saveSources(order,enabled,mode)};onSnapshot(withContext(Dispatchers.IO){store.snapshot()});onSnack(AppNotice("服务已启动"));after() } }
   if(strategyOpen) {
     BackHandler { strategyOpen=false }
     SourceStrategyScreen(mode,{mode=it},{onDetect(order.filter { it in enabled })},{applySettings { strategyOpen=false }},{strategyOpen=false},modifier)
@@ -186,7 +203,7 @@ class MainActivity : ComponentActivity() {
       SourceOrderList(order, enabled, { order=it }, { key, checked -> enabled=if(checked) enabled+key else enabled-key })
       Spacer(Modifier.height(12.dp))
       Text("已启用 ${enabled.size}/${order.size} 个来源",style=MaterialTheme.typography.labelMedium,color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(horizontal=16.dp))
-      Button(onClick={applySettings()},enabled=changed,modifier=Modifier.fillMaxWidth().height(56.dp),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.RestartAlt,null);Spacer(Modifier.width(8.dp));Text("应用并重启服务")}
+      Button(onClick={applySettings()},enabled=changed,modifier=Modifier.fillMaxWidth().heightIn(min=actionHeight()),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.RestartAlt,null);Spacer(Modifier.width(8.dp));Text("应用并重启服务")}
       Spacer(Modifier.height(16.dp))
     }
   }
@@ -200,8 +217,8 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
     Card(shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow)){Column{SourceMode.entries.forEach{item->Row(Modifier.fillMaxWidth().clickable{onMode(item)}.padding(horizontal=12.dp,vertical=8.dp),verticalAlignment=Alignment.CenterVertically){RadioButton(mode==item,{onMode(item)});Column(Modifier.padding(start=4.dp)){Text(item.label,style=MaterialTheme.typography.bodyLarge);Text(item.description,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}}}}}
     Spacer(Modifier.height(16.dp));Card(modifier=Modifier.fillMaxWidth(),shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.primaryContainer)){Column(Modifier.padding(16.dp)){Text("当前选择",style=MaterialTheme.typography.titleMedium);Text(if(mode==SourceMode.MOST)"只显示弹幕最多的来源" else mode.description,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)}}
     Spacer(Modifier.height(20.dp));Text("来源检测",style=MaterialTheme.typography.titleMedium);Text("验证搜索、分集读取和弹幕下载",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant);Spacer(Modifier.height(8.dp))
-    FilledTonalButton(onDetect,Modifier.fillMaxWidth().height(56.dp),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.NetworkCheck,null);Spacer(Modifier.width(8.dp));Text("检测已启用来源")}
-    Spacer(Modifier.height(16.dp));Button(onApply,Modifier.fillMaxWidth().height(56.dp),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.Check,null);Spacer(Modifier.width(8.dp));Text("应用策略")};Spacer(Modifier.height(16.dp))
+    FilledTonalButton(onDetect,Modifier.fillMaxWidth().heightIn(min=actionHeight()),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.NetworkCheck,null);Spacer(Modifier.width(8.dp));Text("检测已启用来源")}
+    Spacer(Modifier.height(16.dp));Button(onApply,Modifier.fillMaxWidth().heightIn(min=actionHeight()),shape=RoundedCornerShape(28.dp)){Icon(Icons.Rounded.Check,null);Spacer(Modifier.width(8.dp));Text("应用策略")};Spacer(Modifier.height(16.dp))
   }}
 }
 
@@ -225,7 +242,7 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
   }
 }
 
-@Composable private fun ToolsScreen(store:ServiceStore, initial:ServiceSnapshot,onBack:()->Unit,onSnapshot:(ServiceSnapshot)->Unit,onSnack:(String)->Unit,modifier:Modifier){
+@Composable private fun ToolsScreen(store:ServiceStore, initial:ServiceSnapshot,onBack:()->Unit,onSnapshot:(ServiceSnapshot)->Unit,onSnack:(AppNotice)->Unit,modifier:Modifier){
   val scope=rememberCoroutineScope()
   var sizes by remember{mutableStateOf(initial.cache)}
   LaunchedEffect(initial.cache) { sizes = initial.cache }
@@ -238,9 +255,9 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
         val updated=withContext(Dispatchers.IO){store.clearCache(key);store.snapshot()}
         sizes=updated.cache
         onSnapshot(updated)
-        onSnack(if (sizes.total < 0) "${name}已清理，服务缓存大小暂时无法读取" else "${name}已清理")
+        onSnack(AppNotice(if (sizes.total < 0) "${name}已清理，服务缓存大小暂时无法读取" else "${name}已清理", if (sizes.total < 0) NoticeKind.INFO else NoticeKind.SUCCESS))
       } catch(e:Exception) {
-        onSnack(e.message ?: "清理失败，请重试")
+        onSnack(AppNotice(e.message ?: "清理失败，请重试", NoticeKind.ERROR))
       } finally { clearing=false }
     }
   }
@@ -257,7 +274,7 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
         CacheSummaryLine("应用临时缓存",sizes.temporary,Icons.Rounded.Storage,RoundedCornerShape(20.dp),!clearing){clear("temporary","应用临时缓存")}
       }
       Spacer(Modifier.height(16.dp))
-      OutlinedButton(onClick={clear(null,"全部缓存")},enabled=!clearing,modifier=Modifier.fillMaxWidth().height(56.dp)){
+      OutlinedButton(onClick={clear(null,"全部缓存")},enabled=!clearing,modifier=Modifier.fillMaxWidth().heightIn(min=actionHeight())){
         Icon(Icons.Rounded.DeleteSweep,null)
         Spacer(Modifier.width(8.dp))
         Text(if(clearing) "正在清理…" else "清理全部缓存 · 合计 ${formatBytes(sizes.total)}")
@@ -268,7 +285,7 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
 
 @Composable private fun CacheSummaryLine(name:String,size:Long,icon:androidx.compose.ui.graphics.vector.ImageVector,shape:RoundedCornerShape,enabled:Boolean,onClear:()->Unit){
   Surface(modifier=Modifier.fillMaxWidth(),shape=shape,color=MaterialTheme.colorScheme.surfaceContainerLow){
-    Row(Modifier.heightIn(min=72.dp).padding(start=16.dp,end=8.dp),verticalAlignment=Alignment.CenterVertically){
+    Row(Modifier.heightIn(min=if(LocalCompactUi.current) 64.dp else 72.dp).padding(start=16.dp,end=8.dp),verticalAlignment=Alignment.CenterVertically){
       Surface(shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.primaryContainer){
         Box(Modifier.size(40.dp),contentAlignment=Alignment.Center){Icon(icon,null,tint=MaterialTheme.colorScheme.onPrimaryContainer)}
       }
@@ -282,36 +299,36 @@ private val SourceMode.description get()=when(this){SourceMode.PRIORITY->"使用
   }
 }
 
-@Composable private fun SettingsScreen(store: ServiceStore, s: ServiceSnapshot, onAbout: () -> Unit, onSnapshot: (ServiceSnapshot) -> Unit, onSnack: (String) -> Unit, modifier: Modifier) {
-  val scope = rememberCoroutineScope { kotlinx.coroutines.CoroutineExceptionHandler { _, error -> onSnack(error.message ?: "操作失败，请重试") } }; val context = LocalContext.current
+@Composable private fun SettingsScreen(store: ServiceStore, s: ServiceSnapshot, onAbout: () -> Unit, onSnapshot: (ServiceSnapshot) -> Unit, onSnack: (AppNotice) -> Unit, modifier: Modifier) {
+  val scope = rememberCoroutineScope { kotlinx.coroutines.CoroutineExceptionHandler { _, error -> onSnack(AppNotice(error.message ?: "操作失败，请重试", NoticeKind.ERROR)) } }; val context = LocalContext.current
   var shown by remember { mutableStateOf(false) }; var foreground by remember { mutableStateOf(store.flag("foreground", true)) }; var boot by remember { mutableStateOf(store.flag("boot", false)) }
   Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) { AppBar("设置"); Column(Modifier.padding(horizontal = 16.dp)) {
     Text("API Token", style = MaterialTheme.typography.titleLarge)
     ExpressiveListItem(if (shown) s.token else "••••••••••••••••••••••••", "点击复制完整 API Token", Icons.Rounded.ContentCopy) { copy(context, s.token, onSnack) }
-    FilledTonalButton({ shown = !shown }, Modifier.fillMaxWidth().height(56.dp), shape=RoundedCornerShape(28.dp)) { Icon(if (shown) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility, null); Spacer(Modifier.width(8.dp)); Text(if (shown) "隐藏 Token" else "显示完整 Token") }
+    FilledTonalButton({ shown = !shown }, Modifier.fillMaxWidth().heightIn(min=actionHeight()), shape=RoundedCornerShape(28.dp)) { Icon(if (shown) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility, null); Spacer(Modifier.width(8.dp)); Text(if (shown) "隐藏 Token" else "显示完整 Token") }
     Spacer(Modifier.height(8.dp))
-    OutlinedButton({ scope.launch { withContext(Dispatchers.IO) { store.regenerateToken() }; onSnapshot(withContext(Dispatchers.IO){store.snapshot()}); onSnack("API Token 已重新生成") } }, Modifier.fillMaxWidth().height(56.dp), shape=RoundedCornerShape(28.dp)) { Icon(Icons.Rounded.Refresh, null); Spacer(Modifier.width(8.dp)); Text("重新生成 Token") }
-    Spacer(Modifier.height(18.dp)); Text("管理 Token", style = MaterialTheme.typography.titleLarge)
+    OutlinedButton({ scope.launch { withContext(Dispatchers.IO) { store.regenerateToken() }; onSnapshot(withContext(Dispatchers.IO){store.snapshot()}); onSnack(AppNotice("API Token 已重新生成")) } }, Modifier.fillMaxWidth().heightIn(min=actionHeight()), shape=RoundedCornerShape(28.dp)) { Icon(Icons.Rounded.Refresh, null); Spacer(Modifier.width(8.dp)); Text("重新生成 Token") }
+    Spacer(Modifier.height(if(LocalCompactUi.current) 10.dp else 18.dp)); Text("管理 Token", style = MaterialTheme.typography.titleLarge)
     ExpressiveListItem("••••••••••••••••••••••••", "仅用于管理页面，不填入播放器。", Icons.Rounded.ContentCopy) { copy(context, s.adminToken, onSnack) }
-    Spacer(Modifier.height(18.dp)); Text("服务行为", style = MaterialTheme.typography.titleLarge)
+    Spacer(Modifier.height(if(LocalCompactUi.current) 10.dp else 18.dp)); Text("服务行为", style = MaterialTheme.typography.titleLarge)
     SwitchLine("保持前台运行", foreground) { foreground = it; store.setFlag("foreground", it) }
     Text("关闭后离开应用将停止服务；开启后通过常驻通知保持后台服务。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     SwitchLine("开机后自动启动", boot) { boot = it; store.setFlag("boot", it) }
-    Spacer(Modifier.height(18.dp)); Text("关于", style = MaterialTheme.typography.titleLarge)
+    Spacer(Modifier.height(if(LocalCompactUi.current) 10.dp else 18.dp)); Text("关于", style = MaterialTheme.typography.titleLarge)
     ExpressiveListItem("Logvar · 测试版", "${BuildConfig.VERSION_NAME} · 服务版本", Icons.Rounded.ChevronRight, onAbout)
   } }
 }
 
 @Composable private fun AboutScreen(s:ServiceSnapshot,onBack:()->Unit,modifier:Modifier){Column(modifier.fillMaxSize()){AppBar("服务信息",onBack);Column(Modifier.padding(16.dp)){ExpressiveListItem("服务版本",s.version,Icons.Rounded.ChevronRight){} }}}
 
-@Composable private fun ExpressiveListItem(title:String,support:String,icon:androidx.compose.ui.graphics.vector.ImageVector,onClick:()->Unit){Surface(Modifier.fillMaxWidth().padding(vertical=3.dp).clickable(onClick=onClick),shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surfaceContainerLow){Row(Modifier.heightIn(min=72.dp).padding(horizontal=16.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(title,style=MaterialTheme.typography.bodyLarge,maxLines=1,overflow=TextOverflow.Ellipsis);Text(support,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant,maxLines=1,overflow=TextOverflow.Ellipsis)};Icon(icon,null)}}}
+@Composable private fun ExpressiveListItem(title:String,support:String,icon:androidx.compose.ui.graphics.vector.ImageVector,onClick:()->Unit){Surface(Modifier.fillMaxWidth().padding(vertical=3.dp).clickable(onClick=onClick),shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surfaceContainerLow){Row(Modifier.heightIn(min=if(LocalCompactUi.current) 64.dp else 72.dp).padding(horizontal=16.dp,vertical=8.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(title,style=MaterialTheme.typography.bodyLarge,maxLines=Int.MAX_VALUE,overflow=TextOverflow.Ellipsis);Text(support,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant,maxLines=Int.MAX_VALUE,overflow=TextOverflow.Ellipsis)};Icon(icon,null)}}}
 @Composable private fun SwitchLine(label:String,checked:Boolean,onChange:(Boolean)->Unit){Row(Modifier.fillMaxWidth().heightIn(min=56.dp),verticalAlignment=Alignment.CenterVertically){Text(label,Modifier.weight(1f),style=MaterialTheme.typography.bodyLarge);Switch(checked,onChange)}}
 @Composable private fun StatusLine(text:String){Text(text,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)}
 @Composable private fun BottomTabs(page:Page,onPage:(Page)->Unit){NavigationBar{listOf(Page.HOME to ("首页" to Icons.Rounded.Home),Page.SOURCES to ("弹幕源" to Icons.Rounded.VideoLibrary),Page.SETTINGS to ("设置" to Icons.Rounded.Settings)).forEach{(p,x)->NavigationBarItem(selected=page==p || (page==Page.SOURCE_RESULTS && p==Page.SOURCES),onClick={onPage(p)},icon={Icon(x.second,null)},label={Text(x.first)})}}}
 
 private fun fallbackColors()=lightColorScheme(primary=Color(0xFF0B57D0),onPrimary=Color.White,primaryContainer=Color(0xFFD3E3FD),onPrimaryContainer=Color(0xFF041E49),secondary=Color(0xFF5A5C7C),secondaryContainer=Color(0xFFDCE2F9),onSecondaryContainer=Color(0xFF131C2B),tertiaryContainer=Color(0xFFFFD8EE),onTertiaryContainer=Color(0xFF2E1125),surface=Color(0xFFFAF9FD),surfaceContainerLow=Color(0xFFF3F3FA),surfaceContainer=Color(0xFFEEEDF3),surfaceContainerHigh=Color(0xFFE9E8EF),surfaceContainerHighest=Color(0xFFE3E2E6),onSurface=Color(0xFF1B1B1F),onSurfaceVariant=Color(0xFF44474E),outline=Color(0xFF74777F),outlineVariant=Color(0xFFC4C6D0),inverseSurface=Color(0xFF303034),inverseOnSurface=Color(0xFFF2F0F4),inversePrimary=Color(0xFFA8C7FA),error=Color(0xFFB3261E),onError=Color.White,errorContainer=Color(0xFFF9DEDC),onErrorContainer=Color(0xFF410E0B))
 private fun formatBytes(bytes:Long)=when { bytes < 0 -> "暂时无法读取"; bytes < 1024 -> "$bytes B"; bytes < 1024*1024 -> "${"%.1f".format(bytes/1024.0)} KB"; else -> "${"%.1f".format(bytes/1024.0/1024.0)} MB" }
-private fun copy(context:Context,value:String,done:(String)->Unit){(context.getSystemService(Context.CLIPBOARD_SERVICE)as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Logvar",value));done("已复制")}
+private fun copy(context:Context,value:String,done:(AppNotice)->Unit){(context.getSystemService(Context.CLIPBOARD_SERVICE)as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Logvar",value));done(AppNotice("已复制"))}
 private val sourceList=listOf(Source("tencent","腾讯视频","qq","斗罗大陆系列小剧场"),Source("iqiyi","爱奇艺","qiyi","苍兰诀第2季"),Source("bilibili","B站","bilibili1","我的三体第四季"),Source("dandan","弹弹play","dandan","博人传之火影次世代"),Source("imgo","芒果 TV","imgo","大侦探第十一季"),Source("youku","优酷","youku","少年白马醉春风"),Source("renren","人人视频","renren","爱情怎么翻译"))
 internal fun sourceByKey(key:String)=sourceList.first{it.key==key}
 private data class SourceState(val key:String,val enabled:Boolean)

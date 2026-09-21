@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const ui = readFileSync(new URL('../app/src/main/java/app/logvar/MainActivity.kt', import.meta.url), 'utf8');
+assert.match(ui, /padding\(padding\)\.consumeWindowInsets\(padding\)/, 'Scaffold padding must consume insets before nested app bars');
+assert.equal((ui.match(/Modifier\.padding\(padding\)/g) || []).length, 0, 'Do not reapply Scaffold padding in each child');
+console.log('PASS: single Scaffold inset owner (source regression check, not a device rendering test)');
+const notice = readFileSync(new URL('../app/src/main/java/app/logvar/AppSnackbar.kt', import.meta.url), 'utf8');
+assert.doesNotMatch(ui, /snackbarHost\s*=\s*\{\s*AppSnackbarHost/, 'Notice must not move with the conditional Scaffold bottom bar');
+assert.match(ui, /AppSnackbarHost\(snack, Modifier\.align\(Alignment\.BottomCenter\)/, 'Notice must be anchored to the persistent root overlay');
+assert.match(ui, /windowInsetsPadding\(WindowInsets\.safeDrawing\.only\(WindowInsetsSides\.Bottom\s*\+\s*WindowInsetsSides\.Horizontal\)\)\.padding\(bottom = 80\.dp\)/, 'Notice anchor must retain navigation clearance on all pages');
+assert.match(notice, /val background = colors\.primaryContainer/);
+assert.match(notice, /val foreground = colors\.onPrimaryContainer/);
+assert.doesNotMatch(notice, /colors\.(secondaryContainer|surfaceContainerHigh|errorContainer)/, 'All notice kinds must share the same palette');
+console.log('PASS: persistent notice anchor and unified palette (source regression check)');
