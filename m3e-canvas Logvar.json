@@ -1,0 +1,1478 @@
+{
+  "groups": [
+    {
+      "id": "home-bar-g",
+      "x": 0,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-bar",
+          "kind": "topAppBar",
+          "label": "首页",
+          "icon": null,
+          "variant": "filled",
+          "icon2": null,
+          "actions": {
+            "icon2": {
+              "to": "settings",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "home-service-background-g",
+      "x": 16,
+      "y": 104,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-service-background",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 314,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 24,
+          "radiusBottom": 24
+        }
+      ]
+    },
+    {
+      "id": "home-status-g",
+      "x": 26,
+      "y": 124,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-status",
+          "kind": "text",
+          "label": "● 服务运行中",
+          "icon": null,
+          "variant": "filled",
+          "size": 24,
+          "bold": false,
+          "note": "正常状态使用语义绿色；图稿预览遵循工具的文字色，原生实现采用成功状态主题色。"
+        }
+      ]
+    },
+    {
+      "id": "home-status-support-g",
+      "x": 26,
+      "y": 166,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-status-support",
+          "kind": "text",
+          "label": "正在监听局域网请求",
+          "icon": null,
+          "variant": "filled",
+          "size": 14,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "home-api-label-g",
+      "x": 26,
+      "y": 210,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-api-label",
+          "kind": "text",
+          "label": "API 地址",
+          "icon": null,
+          "variant": "filled",
+          "size": 14,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "home-api-value-g",
+      "x": 26,
+      "y": 238,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-api-value",
+          "kind": "text",
+          "label": "http://192.168.1.105:9321/••••••",
+          "icon": null,
+          "variant": "filled",
+          "size": 16,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "home-copy-g",
+      "x": 16,
+      "y": 276,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-copy",
+          "kind": "button",
+          "label": "复制 API 地址",
+          "icon": "content_copy",
+          "variant": "filled",
+          "size": 380,
+          "note": "地址展示遮蔽 Token；复制完整地址，底部显示复制成功短提示。所有地址为示例。"
+        }
+      ]
+    },
+    {
+      "id": "home-start-g",
+      "x": 26,
+      "y": 350,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-start",
+          "kind": "button",
+          "label": "启动服务",
+          "icon": null,
+          "variant": "outlined",
+          "size": 174,
+          "note": "运行中禁用；停止时启用。与停止服务保持同一行，使用真实服务状态。"
+        }
+      ]
+    },
+    {
+      "id": "home-stop-g",
+      "x": 214,
+      "y": 350,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-stop",
+          "kind": "button",
+          "label": "停止服务",
+          "icon": null,
+          "variant": "outlined",
+          "size": 174,
+          "action": {
+            "to": "stop-confirm",
+            "transition": "fade"
+          },
+          "note": "弹出确认对话框，确认后才停止服务；危险操作文字使用 error 色。"
+        }
+      ]
+    },
+    {
+      "id": "home-network-heading-g",
+      "x": 16,
+      "y": 434,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-network-heading",
+          "kind": "text",
+          "label": "局域网状态",
+          "icon": null,
+          "variant": "filled",
+          "size": 20,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "home-network-background-g",
+      "x": 16,
+      "y": 468,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-network-background",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 380,
+          "size2": 124,
+          "fill": "surfaceContainerLow",
+          "radiusTop": 24,
+          "radiusBottom": 24
+        }
+      ]
+    },
+    {
+      "id": "home-network-name-g",
+      "x": 26,
+      "y": 484,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-network-name",
+          "kind": "text",
+          "label": "● 已连接：家庭 Wi-Fi",
+          "icon": null,
+          "variant": "filled",
+          "size": 14,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "home-network-ip-g",
+      "x": 26,
+      "y": 520,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-network-ip",
+          "kind": "text",
+          "label": "● 手机 IP：192.168.1.105",
+          "icon": null,
+          "variant": "filled",
+          "size": 14,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "home-network-port-g",
+      "x": 26,
+      "y": 556,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-network-port",
+          "kind": "text",
+          "label": "● 端口 9321 正在监听",
+          "icon": null,
+          "variant": "filled",
+          "size": 14,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "home-config-g",
+      "x": 16,
+      "y": 608,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-config",
+          "kind": "listItem",
+          "label": "当前配置",
+          "icon": null,
+          "variant": "filled",
+          "supporting": "7 个来源 · 已开启多源合并",
+          "icon2": "chevron_right",
+          "action": {
+            "to": "sources",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "home-cache-g",
+      "x": 16,
+      "y": 696,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-cache",
+          "kind": "button",
+          "label": "缓存占用 126 MB · 查看",
+          "icon": null,
+          "variant": "text",
+          "size": 380,
+          "action": {
+            "to": "tools",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "home-nav-g",
+      "x": 0,
+      "y": 788,
+      "axis": "x",
+      "items": [
+        {
+          "id": "home-nav",
+          "kind": "bottomNav",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "tabs": [
+            {
+              "icon": "home",
+              "label": "首页"
+            },
+            {
+              "icon": "video_library",
+              "label": "弹幕源"
+            },
+            {
+              "icon": "settings",
+              "label": "设置"
+            }
+          ],
+          "selected": 0,
+          "actions": {
+            "tab:0": {
+              "to": "home",
+              "transition": "fade"
+            },
+            "tab:1": {
+              "to": "sources",
+              "transition": "fade"
+            },
+            "tab:2": {
+              "to": "settings",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sources-bar-g",
+      "x": 492,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "sources-bar",
+          "kind": "topAppBar",
+          "label": "弹幕源",
+          "icon": null,
+          "icon2": null,
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "sources-list-g",
+      "x": 508,
+      "y": 104,
+      "axis": "y",
+      "items": [
+        {
+          "id": "sources-strategy",
+          "kind": "listItem",
+          "label": "弹幕策略",
+          "supporting": "仅保留弹幕最多的来源",
+          "icon": "tune",
+          "icon2": "chevron_right",
+          "variant": "filled",
+          "action": {
+            "to": "strategy",
+            "transition": "slideLeft"
+          }
+        },
+        {
+          "id": "src-tencent",
+          "kind": "listItem",
+          "label": "腾讯视频",
+          "supporting": "优先级 1",
+          "icon": "menu",
+          "icon2": null,
+          "switch": true,
+          "checked": true,
+          "variant": "filled",
+          "note": "拖动调整优先级，开关控制是否启用。"
+        },
+        {
+          "id": "src-iqiyi",
+          "kind": "listItem",
+          "label": "爱奇艺",
+          "supporting": "优先级 2",
+          "icon": "menu",
+          "icon2": null,
+          "switch": true,
+          "checked": true,
+          "variant": "filled"
+        },
+        {
+          "id": "src-bilibili",
+          "kind": "listItem",
+          "label": "B站",
+          "supporting": "优先级 3",
+          "icon": "menu",
+          "icon2": null,
+          "switch": true,
+          "checked": true,
+          "variant": "filled"
+        },
+        {
+          "id": "src-dandan",
+          "kind": "listItem",
+          "label": "弹弹play",
+          "supporting": "优先级 4",
+          "icon": "menu",
+          "icon2": null,
+          "switch": true,
+          "checked": true,
+          "variant": "filled"
+        },
+        {
+          "id": "src-imgo",
+          "kind": "listItem",
+          "label": "芒果 TV",
+          "supporting": "优先级 5",
+          "icon": "menu",
+          "icon2": null,
+          "switch": true,
+          "checked": true,
+          "variant": "filled"
+        },
+        {
+          "id": "src-youku",
+          "kind": "listItem",
+          "label": "优酷",
+          "supporting": "优先级 6",
+          "icon": "menu",
+          "icon2": null,
+          "switch": true,
+          "checked": false,
+          "variant": "filled"
+        },
+        {
+          "id": "src-renren",
+          "kind": "listItem",
+          "label": "人人视频",
+          "supporting": "优先级 7",
+          "icon": "menu",
+          "icon2": null,
+          "switch": true,
+          "checked": false,
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "sources-apply-g",
+      "x": 508,
+      "y": 716,
+      "axis": "x",
+      "items": [
+        {
+          "id": "sources-apply",
+          "kind": "button",
+          "label": "应用并重启服务",
+          "icon": "restart_alt",
+          "variant": "filled",
+          "size": 380
+        }
+      ]
+    },
+    {
+      "id": "sources-nav-g",
+      "x": 492,
+      "y": 788,
+      "axis": "x",
+      "items": [
+        {
+          "id": "sources-nav",
+          "kind": "bottomNav",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "tabs": [
+            {
+              "icon": "home",
+              "label": "首页"
+            },
+            {
+              "icon": "video_library",
+              "label": "弹幕源"
+            },
+            {
+              "icon": "settings",
+              "label": "工具"
+            }
+          ],
+          "selected": 1,
+          "actions": {
+            "tab:0": {
+              "to": "home",
+              "transition": "fade"
+            },
+            "tab:2": {
+              "to": "settings",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "strategy-bar-g",
+      "x": 984,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "strategy-bar",
+          "kind": "topAppBar",
+          "label": "弹幕策略",
+          "icon": "arrow_back",
+          "icon2": null,
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "back",
+              "transition": "slide"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "strategy-title-g",
+      "x": 1000,
+      "y": 104,
+      "axis": "x",
+      "items": [
+        {
+          "id": "strategy-title",
+          "kind": "text",
+          "label": "多源结果怎么显示？",
+          "icon": null,
+          "variant": "filled",
+          "size": 22,
+          "bold": true
+        }
+      ]
+    },
+    {
+      "id": "strategy-options-g",
+      "x": 1000,
+      "y": 141,
+      "axis": "y",
+      "items": [
+        {
+          "id": "mode-priority",
+          "kind": "listItem",
+          "label": "按优先级选择",
+          "supporting": "使用第一个成功匹配的来源",
+          "icon": "radio_button_unchecked",
+          "icon2": null,
+          "variant": "filled"
+        },
+        {
+          "id": "mode-merge",
+          "kind": "listItem",
+          "label": "合并全部来源",
+          "supporting": "合并多个匹配来源的弹幕",
+          "icon": "radio_button_unchecked",
+          "icon2": null,
+          "variant": "filled"
+        },
+        {
+          "id": "mode-most",
+          "kind": "listItem",
+          "label": "仅保留弹幕最多来源",
+          "supporting": "比较数量，只显示最多的一组",
+          "icon": "radio_button_checked",
+          "icon2": null,
+          "variant": "filled",
+          "note": "数量相同时按来源优先级决定。"
+        }
+      ]
+    },
+    {
+      "id": "strategy-info-g",
+      "x": 1000,
+      "y": 379,
+      "axis": "x",
+      "items": [
+        {
+          "id": "strategy-info",
+          "kind": "card",
+          "label": "当前选择",
+          "supporting": "适合希望弹幕丰富、又不想混合多个平台内容的情况。",
+          "icon": "tips_and_updates",
+          "variant": "filled",
+          "fill": "primaryContainer",
+          "size": 380,
+          "size2": 104,
+          "noImage": true
+        }
+      ]
+    },
+    {
+      "id": "strategy-detect-title-g",
+      "x": 1000,
+      "y": 499,
+      "axis": "x",
+      "items": [
+        {
+          "id": "strategy-detect-title",
+          "kind": "text",
+          "label": "来源检测",
+          "icon": null,
+          "variant": "filled",
+          "size": 20,
+          "bold": true
+        }
+      ]
+    },
+    {
+      "id": "strategy-detect-support-g",
+      "x": 1000,
+      "y": 533,
+      "axis": "x",
+      "items": [
+        {
+          "id": "strategy-detect-support",
+          "kind": "text",
+          "label": "验证搜索、分集读取和弹幕下载",
+          "icon": null,
+          "variant": "filled",
+          "size": 14,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "strategy-buttons-g",
+      "x": 1000,
+      "y": 559,
+      "axis": "y",
+      "items": [
+        {
+          "id": "strategy-detect",
+          "kind": "button",
+          "label": "检测已启用来源",
+          "icon": "network_check",
+          "variant": "tonal",
+          "size": 380,
+          "action": {
+            "to": "results",
+            "transition": "slideLeft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "strategy-nav-g",
+      "x": 984,
+      "y": 788,
+      "axis": "x",
+      "items": [
+        {
+          "id": "strategy-nav",
+          "kind": "bottomNav",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "tabs": [
+            {
+              "icon": "home",
+              "label": "首页"
+            },
+            {
+              "icon": "video_library",
+              "label": "弹幕源"
+            },
+            {
+              "icon": "settings",
+              "label": "设置"
+            }
+          ],
+          "selected": 1,
+          "actions": {
+            "tab:0": {
+              "to": "home",
+              "transition": "fade"
+            },
+            "tab:1": {
+              "to": "sources",
+              "transition": "fade"
+            },
+            "tab:2": {
+              "to": "settings",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "results-bar-g",
+      "x": 1476,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "results-bar",
+          "kind": "topAppBar",
+          "label": "弹幕源",
+          "icon": "arrow_back",
+          "icon2": null,
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "sources",
+              "transition": "slide"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "results-title-g",
+      "x": 1492,
+      "y": 104,
+      "axis": "x",
+      "items": [
+        {
+          "id": "results-title",
+          "kind": "text",
+          "label": "来源检测",
+          "icon": null,
+          "variant": "filled",
+          "size": 24,
+          "bold": true
+        }
+      ]
+    },
+    {
+      "id": "results-support-g",
+      "x": 1492,
+      "y": 142,
+      "axis": "x",
+      "items": [
+        {
+          "id": "results-support",
+          "kind": "text",
+          "label": "搜索 → 读取分集 → 下载一集弹幕",
+          "icon": null,
+          "variant": "filled",
+          "size": 14,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "results-redetect-g",
+      "x": 1492,
+      "y": 180,
+      "axis": "x",
+      "items": [
+        {
+          "id": "results-redetect",
+          "kind": "button",
+          "label": "重新检测已启用来源",
+          "icon": "network_check",
+          "variant": "tonal",
+          "size": 380
+        }
+      ]
+    },
+    {
+      "id": "results-list-g",
+      "x": 1492,
+      "y": 252,
+      "axis": "y",
+      "items": [
+        {
+          "id": "result-tencent",
+          "kind": "listItem",
+          "label": "● 腾讯视频",
+          "supporting": "正常 · 8234 条",
+          "icon": null,
+          "icon2": "check_circle",
+          "variant": "filled"
+        },
+        {
+          "id": "result-iqiyi",
+          "kind": "listItem",
+          "label": "● 爱奇艺",
+          "supporting": "正常 · 5612 条",
+          "icon": null,
+          "icon2": "check_circle",
+          "variant": "filled"
+        },
+        {
+          "id": "result-bilibili",
+          "kind": "listItem",
+          "label": "● B站",
+          "supporting": "正常 · 12048 条",
+          "icon": null,
+          "icon2": "check_circle",
+          "variant": "filled"
+        },
+        {
+          "id": "result-dandan",
+          "kind": "listItem",
+          "label": "● 弹弹play",
+          "supporting": "无弹幕 · 0 条",
+          "icon": null,
+          "icon2": "info",
+          "variant": "filled"
+        },
+        {
+          "id": "result-imgo",
+          "kind": "listItem",
+          "label": "● 芒果 TV",
+          "supporting": "失败 · 请求超时",
+          "icon": null,
+          "icon2": "error",
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "results-summary-g",
+      "x": 1492,
+      "y": 632,
+      "axis": "x",
+      "items": [
+        {
+          "id": "results-summary",
+          "kind": "text",
+          "label": "检测完成 · 3 个来源正常 · 示例结果",
+          "icon": null,
+          "variant": "filled",
+          "size": 14,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "results-nav-g",
+      "x": 1476,
+      "y": 788,
+      "axis": "x",
+      "items": [
+        {
+          "id": "results-nav",
+          "kind": "bottomNav",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "tabs": [
+            {
+              "icon": "home",
+              "label": "首页"
+            },
+            {
+              "icon": "video_library",
+              "label": "弹幕源"
+            },
+            {
+              "icon": "settings",
+              "label": "设置"
+            }
+          ],
+          "selected": 1,
+          "actions": {
+            "tab:0": {
+              "to": "home",
+              "transition": "fade"
+            },
+            "tab:1": {
+              "to": "sources",
+              "transition": "fade"
+            },
+            "tab:2": {
+              "to": "settings",
+              "transition": "fade"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tools-bar-g",
+      "x": 1968,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "tools-bar",
+          "kind": "topAppBar",
+          "label": "缓存管理",
+          "icon": "arrow_back",
+          "icon2": null,
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "home",
+              "transition": "slide"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tools-cache-title-g",
+      "x": 1984,
+      "y": 104,
+      "axis": "x",
+      "items": [
+        {
+          "id": "tools-cache-title",
+          "kind": "text",
+          "label": "缓存清理",
+          "icon": null,
+          "variant": "filled",
+          "size": 24,
+          "bold": true
+        }
+      ]
+    },
+    {
+      "id": "tools-cache-list-g",
+      "x": 1984,
+      "y": 143,
+      "axis": "y",
+      "items": [
+        {
+          "id": "cache-search",
+          "kind": "listItem",
+          "label": "搜索缓存",
+          "supporting": "1.2 MB",
+          "icon": "search",
+          "icon2": "delete",
+          "variant": "filled"
+        },
+        {
+          "id": "cache-comments",
+          "kind": "listItem",
+          "label": "弹幕缓存",
+          "supporting": "10.6 MB",
+          "icon": "chat",
+          "icon2": "delete",
+          "variant": "filled"
+        },
+        {
+          "id": "cache-matching",
+          "kind": "listItem",
+          "label": "匹配数据缓存",
+          "supporting": "0.6 MB",
+          "icon": "link",
+          "icon2": "delete",
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "tools-clear-g",
+      "x": 1984,
+      "y": 381,
+      "axis": "x",
+      "items": [
+        {
+          "id": "tools-clear",
+          "kind": "button",
+          "label": "清理全部缓存 · 合计 12.4 MB",
+          "icon": "delete_sweep",
+          "variant": "outlined",
+          "size": 380
+        }
+      ]
+    },
+    {
+      "id": "settings-bar-g",
+      "x": 2460,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "settings-bar",
+          "kind": "topAppBar",
+          "label": "设置",
+          "icon": null,
+          "icon2": null,
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "home",
+              "transition": "slide"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "settings-api-title-g",
+      "x": 2476,
+      "y": 104,
+      "axis": "x",
+      "items": [
+        {
+          "id": "settings-api-title",
+          "kind": "text",
+          "label": "API Token",
+          "icon": null,
+          "variant": "filled",
+          "size": 22,
+          "bold": true
+        }
+      ]
+    },
+    {
+      "id": "settings-api-g",
+      "x": 2476,
+      "y": 141,
+      "axis": "y",
+      "items": [
+        {
+          "id": "settings-token",
+          "kind": "listItem",
+          "label": "••••••••••••••••••••••••",
+          "supporting": "点击复制完整 API Token",
+          "icon": null,
+          "icon2": "content_copy",
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "settings-token-buttons-g",
+      "x": 2476,
+      "y": 229,
+      "axis": "y",
+      "items": [
+        {
+          "id": "settings-show",
+          "kind": "button",
+          "label": "显示完整 Token",
+          "icon": "visibility",
+          "variant": "tonal",
+          "size": 380
+        }
+      ]
+    },
+    {
+      "id": "settings-admin-title-g",
+      "x": 2476,
+      "y": 373,
+      "axis": "x",
+      "items": [
+        {
+          "id": "settings-admin-title",
+          "kind": "text",
+          "label": "管理 Token",
+          "icon": null,
+          "variant": "filled",
+          "size": 22,
+          "bold": true
+        }
+      ]
+    },
+    {
+      "id": "settings-admin-g",
+      "x": 2476,
+      "y": 410,
+      "axis": "y",
+      "items": [
+        {
+          "id": "settings-admin",
+          "kind": "listItem",
+          "label": "••••••••••••••••••••••••",
+          "supporting": "仅用于管理页面，不填入播放器。",
+          "icon": null,
+          "icon2": "content_copy",
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "settings-behavior-title-g",
+      "x": 2476,
+      "y": 498,
+      "axis": "x",
+      "items": [
+        {
+          "id": "settings-behavior-title",
+          "kind": "text",
+          "label": "服务行为",
+          "icon": null,
+          "variant": "filled",
+          "size": 21,
+          "bold": true
+        }
+      ]
+    },
+    {
+      "id": "settings-switches-g",
+      "x": 2476,
+      "y": 535,
+      "axis": "y",
+      "items": [
+        {
+          "id": "settings-foreground",
+          "kind": "listItem",
+          "label": "保持前台运行",
+          "supporting": "通过常驻通知保持后台服务",
+          "icon": "notifications",
+          "icon2": null,
+          "switch": true,
+          "checked": true,
+          "variant": "filled"
+        },
+        {
+          "id": "settings-boot",
+          "kind": "listItem",
+          "label": "开机后自动启动",
+          "supporting": "设备启动后运行本地服务",
+          "icon": "power_settings_new",
+          "icon2": null,
+          "switch": true,
+          "checked": false,
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "about-bar-g",
+      "x": 2952,
+      "y": 0,
+      "axis": "x",
+      "items": [
+        {
+          "id": "about-bar",
+          "kind": "topAppBar",
+          "label": "服务信息",
+          "icon": "arrow_back",
+          "icon2": null,
+          "variant": "filled",
+          "actions": {
+            "icon": {
+              "to": "settings",
+              "transition": "slide"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "about-version-g",
+      "x": 2968,
+      "y": 104,
+      "axis": "y",
+      "items": [
+        {
+          "id": "about-version",
+          "kind": "listItem",
+          "label": "服务版本",
+          "supporting": "1.0.0",
+          "icon": "info",
+          "icon2": "chevron_right",
+          "variant": "filled"
+        }
+      ]
+    },
+    {
+      "id": "cnivrka6",
+      "x": 1000,
+      "y": 641,
+      "axis": "x",
+      "items": [
+        {
+          "id": "strategy-apply",
+          "kind": "button",
+          "label": "应用策略",
+          "icon": "check",
+          "variant": "filled",
+          "size": 380,
+          "action": {
+            "to": "sources",
+            "transition": "slide"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0r2yxtkb",
+      "x": 2476,
+      "y": 735,
+      "axis": "y",
+      "items": [
+        {
+          "id": "settings-about",
+          "kind": "listItem",
+          "label": "Logvar · 测试版",
+          "supporting": "3.0.0-beta · 服务版本",
+          "icon": null,
+          "icon2": "chevron_right",
+          "variant": "filled",
+          "action": {
+            "to": "about",
+            "transition": "slideLeft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "aow0t9oh",
+      "x": 2476,
+      "y": 698,
+      "axis": "x",
+      "items": [
+        {
+          "id": "settings-about-title",
+          "kind": "text",
+          "label": "关于",
+          "icon": null,
+          "variant": "filled",
+          "size": 22,
+          "bold": true
+        }
+      ]
+    },
+    {
+      "id": "zf2r8owj",
+      "x": 2476,
+      "y": 301,
+      "axis": "x",
+      "items": [
+        {
+          "id": "settings-regenerate",
+          "kind": "button",
+          "label": "重新生成 Token",
+          "icon": "refresh",
+          "variant": "outlined",
+          "size": 380
+        }
+      ]
+    },
+    {
+      "id": "stop-dialog-g",
+      "x": 3494,
+      "y": 280,
+      "axis": "x",
+      "items": [
+        {
+          "id": "stop-dialog",
+          "kind": "box",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "size": 312,
+          "size2": 220,
+          "fill": "surfaceContainerHigh",
+          "radiusTop": 28,
+          "radiusBottom": 28,
+          "note": "原生实现使用标准 AlertDialog。画布用容器承载自定义按钮，避免内置按钮重复。"
+        }
+      ]
+    },
+    {
+      "id": "stop-title-g",
+      "x": 3518,
+      "y": 306,
+      "axis": "x",
+      "items": [
+        {
+          "id": "stop-title",
+          "kind": "text",
+          "label": "停止弹幕服务器？",
+          "icon": null,
+          "variant": "filled",
+          "size": 22,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "stop-message-g",
+      "x": 3518,
+      "y": 354,
+      "axis": "x",
+      "items": [
+        {
+          "id": "stop-message",
+          "kind": "text",
+          "label": "局域网设备将暂时无法获取弹幕",
+          "icon": null,
+          "variant": "filled",
+          "size": 14,
+          "bold": false
+        }
+      ]
+    },
+    {
+      "id": "stop-cancel-g",
+      "x": 3558,
+      "y": 428,
+      "axis": "x",
+      "items": [
+        {
+          "id": "stop-cancel",
+          "kind": "button",
+          "label": "取消",
+          "icon": null,
+          "variant": "text",
+          "size": 88,
+          "action": {
+            "to": "home",
+            "transition": "fade"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stop-confirm-button-g",
+      "x": 3654,
+      "y": 428,
+      "axis": "x",
+      "items": [
+        {
+          "id": "stop-confirm-button",
+          "kind": "button",
+          "label": "停止服务",
+          "icon": null,
+          "variant": "filled",
+          "size": 128,
+          "action": {
+            "to": "home",
+            "transition": "fade"
+          },
+          "note": "原生实现中危险操作文字使用 error 红色；确认后停止服务并显示真实停止状态。"
+        }
+      ]
+    },
+    {
+      "id": "nxyeu1px",
+      "x": 2460,
+      "y": 788,
+      "axis": "x",
+      "items": [
+        {
+          "id": "tools-nav",
+          "kind": "bottomNav",
+          "label": "",
+          "icon": null,
+          "variant": "filled",
+          "tabs": [
+            {
+              "icon": "home",
+              "label": "首页"
+            },
+            {
+              "icon": "video_library",
+              "label": "弹幕源"
+            },
+            {
+              "icon": "settings",
+              "label": "设置"
+            }
+          ],
+          "selected": 2,
+          "actions": {
+            "tab:0": {
+              "to": "home",
+              "transition": "fade"
+            },
+            "tab:1": {
+              "to": "sources",
+              "transition": "fade"
+            },
+            "tab:2": {
+              "to": "settings",
+              "transition": "slide"
+            }
+          },
+          "size": 412
+        }
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "id": "home",
+      "name": "首页 · 运行中",
+      "x": 0,
+      "y": 0,
+      "note": "以用户提供的首页运行中图片为基准：服务卡 380×314dp、网络卡 380×124dp，圆角24dp。背景 Box 与独立文字/按钮有意叠放，不要整理为串行卡片。浅色模式，系统字体；首页原生实现支持壁纸动态浅色配色，画布使用 Blue 备用色。IP、Token、缓存均为示例。",
+      "bg": "surface",
+      "place": "top"
+    },
+    {
+      "id": "sources",
+      "name": "弹幕来源",
+      "x": 492,
+      "y": 0,
+      "note": "管理来源开关与查询优先级；列表可滚动和拖动排序。",
+      "bg": "surface",
+      "place": "top"
+    },
+    {
+      "id": "strategy",
+      "name": "弹幕策略",
+      "x": 984,
+      "y": 0,
+      "note": "选择多源结果处理方式并检测已启用来源。",
+      "bg": "surface",
+      "place": "top"
+    },
+    {
+      "id": "results",
+      "name": "来源检测结果",
+      "x": 1476,
+      "y": 0,
+      "note": "依次展示每个已启用来源的搜索、分集和弹幕下载检测结果。",
+      "bg": "surface",
+      "place": "top"
+    },
+    {
+      "id": "tools",
+      "name": "工具",
+      "x": 1968,
+      "y": 0,
+      "note": "查看并清理缓存，检查网络和服务状态。",
+      "bg": "surface",
+      "place": "top"
+    },
+    {
+      "id": "settings",
+      "name": "设置",
+      "x": 2460,
+      "y": 0,
+      "note": "管理 Token、后台运行、开机启动和服务信息。",
+      "bg": "surface",
+      "place": "top"
+    },
+    {
+      "id": "about",
+      "name": "服务信息",
+      "x": 2952,
+      "y": 0,
+      "note": "显示当前内置服务版本。",
+      "bg": "surface",
+      "place": "top"
+    },
+    {
+      "id": "stop-confirm",
+      "name": "停止弹幕服务器？",
+      "x": 3444,
+      "y": 0,
+      "bg": "surface",
+      "note": "首页停止操作的模态确认状态。取消返回首页，确认后停止并提示；此画布仅描述 UI，不运行服务。"
+    }
+  ],
+  "paletteKey": "blue",
+  "frame": "phone",
+  "title": "Logvar",
+  "brief": "在 Android 手机上运行和管理局域网弹幕 API 服务。",
+  "platform": "android",
+  "dynamicColor": false,
+  "theme": {
+    "dark": false,
+    "bothModes": true,
+    "contrast": "standard",
+    "shape": "rounded",
+    "font": "roboto",
+    "emphasized": false,
+    "motion": "expressive"
+  }
+}
