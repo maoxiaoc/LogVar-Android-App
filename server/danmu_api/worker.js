@@ -1,5 +1,6 @@
 import { Globals } from './configs/globals.js';
 import { jsonResponse } from './utils/http-util.js';
+import { extractAnimeTitle } from './utils/common-util.js';
 import { log, formatLogMessage } from './utils/log-util.js'
 import { getFavoriteCachesFromRedis, getRedisCaches, judgeRedisValid } from "./utils/redis-util.js";
 import { cleanupExpiredIPs, findUrlById, getCommentCache, getLocalCaches, judgeLocalCacheValid } from "./utils/cache-util.js";
@@ -339,7 +340,13 @@ async function handleRequest(req, env, deployPlatform, clientIp) {
 
   // GET /api/v2/search/anime
   if (path === "/api/v2/search/anime" && method === "GET") {
-    return searchAnime(url);
+    const response = await searchAnime(url);
+    if (!/ForwardWidgets/i.test(req.headers.get('user-agent') || '') || !response.ok) return response;
+    const data = await response.clone().json();
+    const title = extractAnimeTitle(url.searchParams.get('keyword') || '').toLowerCase();
+    if (!title || !Array.isArray(data.animes)) return response;
+    const exact = data.animes.filter(anime => extractAnimeTitle(anime.animeTitle || '').toLowerCase() === title);
+    return exact.length ? jsonResponse({ ...data, animes: exact }, response.status) : response;
   }
 
   // GET /api/v2/search/episodes
@@ -467,7 +474,7 @@ async function handleRequest(req, env, deployPlatform, clientIp) {
       const cachedComments = getCommentCache(urlForComment);
       if (cachedComments !== null) {
         log("info", `[system] [Rate Limit] Cache hit for URL: ${urlForComment}, skipping rate limit check`);
-        return getComment(path, queryFormat, segmentFlag, clientIp, includeDuration);
+        return getComment(path, queryFormat, segmentFlag, clientIp, includeDuration, !/ForwardWidgets/i.test(req.headers.get('user-agent') || ''));
       }
     }
 
@@ -506,7 +513,7 @@ async function handleRequest(req, env, deployPlatform, clientIp) {
       log("info", `[system] [Rate Limit] IP ${clientIp} request count: ${recentRequests.length}/${globals.rateLimitMaxRequests}`);
     }
 
-    return getComment(path, queryFormat, segmentFlag, clientIp, includeDuration);
+    return getComment(path, queryFormat, segmentFlag, clientIp, includeDuration, !/ForwardWidgets/i.test(req.headers.get('user-agent') || ''));
   }
 
   // POST /api/v2/segmentcomment - 接收segment类的JSON请求体

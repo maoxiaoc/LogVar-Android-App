@@ -17,6 +17,7 @@ import { getDoubanDetail, getDoubanInfoByImdbId, searchDoubanTitles } from "./ut
 import AIClient from './utils/ai-util.js';
 import { getSourceByKey } from './sources/registry.js';
 import BilibiliSource from "./sources/bilibili.js";
+import TencentSource from "./sources/tencent.js";
 import { parseHongguoPlayerUrl } from "./sources/hongguo.js";
 import { NodeHandler } from "./configs/handlers/node-handler.js";
 import { VercelHandler } from "./configs/handlers/vercel-handler.js";
@@ -826,6 +827,70 @@ test('worker.js API endpoints', async (t) => {
       } finally {
         globalThis.fetch = originalFetch;
       }
+    });
+
+    await t.test('Forward match ignores a stale remembered episode offset', async () => {
+      resetFavoriteState();
+      const anime = createFavoriteAnime('收藏测试', 4);
+      addFavorite('收藏测试', [favoriteSearchResult(anime)], [anime]);
+      Globals.lastSelectMap.set('收藏测试', {
+        animeIds: [anime.animeId],
+        preferBySeason: { 1: anime.animeId },
+        sourceBySeason: { 1: 'tencent' },
+        explicitBySeason: { 1: true },
+        offsets: { 1: '4:【qq】 第3集' }
+      });
+
+      const match = async (userAgent, episode = 3) => {
+        const request = new Request('http://localhost/api/v2/match', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'user-agent': userAgent },
+          body: JSON.stringify({ fileName: `收藏测试 S01E0${episode}` })
+        });
+        return parseResponse(await matchAnime(new URL(request.url), request, '127.0.0.1'));
+      };
+
+      assert.equal((await match('ForwardWidgets/1.0.0')).isMatched, false);
+      assert.equal((await match('ForwardWidgets/1.0.0', 4)).isMatched, false);
+      const search = await parseResponse(await searchAnime(new URL('http://localhost/api/v2/search/anime?keyword=收藏测试')));
+      assert.equal(search.animes[0].animeId, anime.animeId);
+      const detail = await parseResponse(await getBangumi(`/api/v2/bangumi/${anime.animeId}`));
+      assert.deepEqual(detail.bangumi.episodes.slice(2, 4).map(item => item.episodeId),
+        anime.links.slice(2, 4).map(item => item.id));
+      assert.equal((await match('other-client')).matches[0].episodeId, anime.links[1].id);
+    });
+
+    await t.test('Forward search excludes a side story when the requested series is exact', async () => {
+      resetFavoriteState();
+      const main = createFavoriteAnime('灵境行者(2026)【网络放送】from dandan&tencent', 4, 910021);
+      const sideStory = createFavoriteAnime('灵境行者小剧场(2026)【3D动漫】from tencent', 2, 910022);
+      Globals.searchCache.set('灵境行者', {
+        results: [favoriteSearchResult(main), favoriteSearchResult(sideStory)],
+        details: [main, sideStory],
+        timestamp: Date.now()
+      });
+      Globals.searchCache.set('灵境行者小剧场', {
+        results: [favoriteSearchResult(sideStory)],
+        details: [sideStory],
+        timestamp: Date.now()
+      });
+      Globals.searchCache.set('灵境', {
+        results: [favoriteSearchResult(main), favoriteSearchResult(sideStory)],
+        details: [main, sideStory],
+        timestamp: Date.now()
+      });
+      const search = async (userAgent, keyword = '灵境行者') => parseResponse(await handleRequest(new Request(
+        `http://localhost/api/v2/search/anime?keyword=${encodeURIComponent(keyword)}`,
+        { headers: { 'user-agent': userAgent } }
+      ), {}, 'cloudflare', '127.0.0.1'));
+
+      assert.deepEqual((await search('ForwardWidgets/1.0.0')).animes.map(anime => anime.animeId), [main.animeId]);
+      assert.deepEqual((await search('ForwardWidgets/1.0.0', '灵境行者小剧场')).animes.map(anime => anime.animeId),
+        [sideStory.animeId]);
+      assert.deepEqual((await search('ForwardWidgets/1.0.0', '灵境')).animes.map(anime => anime.animeId),
+        [main.animeId, sideStory.animeId]);
+      assert.deepEqual((await search('other-client')).animes.map(anime => anime.animeId),
+        [main.animeId, sideStory.animeId]);
     });
 
     await t.test('partial search keyword does not reuse a longer favorite title', async () => {

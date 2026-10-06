@@ -1975,7 +1975,7 @@ export async function matchAnime(url, req, clientIp) {
         secondaryPreferredPlatform: null,
         preferAnimeId,
         preferSource,
-        offsets,
+        offsets: /ForwardWidgets/i.test(req.headers.get('user-agent') || '') ? null : offsets,
         mapping: null
       });
     }
@@ -1989,6 +1989,15 @@ export async function matchAnime(url, req, clientIp) {
       "isMatched": false,
       "matches": []
     };
+
+    // Forward's official widget turns each /match episode into a different
+    // synthetic animeId. Its saved selection then cannot follow the next
+    // episode. When a complete series is available, let Forward use the
+    // stable /search/anime -> /bangumi flow instead.
+    if (/ForwardWidgets/i.test(req.headers.get('user-agent') || '') &&
+        resolveAnimeById(resAnime?.animeId)?.links?.length > 1) {
+      return jsonResponse(resData);
+    }
 
     resData["isMatched"] = Boolean(resAnime && resEpisode);
 
@@ -2457,7 +2466,7 @@ async function fetchMergedComments(url, animeTitle, commentId) {
 }
 
 // Extracted function for GET /api/v2/comment/:commentId
-export async function getComment(path, queryFormat, segmentFlag, clientIp, includeDuration = false) {
+export async function getComment(path, queryFormat, segmentFlag, clientIp, includeDuration = false, allowEpisodeOffset = true) {
   const commentId = parseInt(path.split("/").pop());
   let animeTitle = findAnimeTitleById(commentId);
   let url = findUrlById(commentId);
@@ -2591,8 +2600,10 @@ export async function getComment(path, queryFormat, segmentFlag, clientIp, inclu
           } else {
             lastTitle = lastSearch.title;
             lastSeason = lastSearch.season;
-            offset = `${lastSearch.episode}:${episodeTitle}`;
-            log("info", `[system] [LogVar-API] Calculated episode offset for IP ${clientIp}: Query E${lastSearch.episode}, Selected ${episodeTitle} -> Offset ${offset} (Season ${lastSeason})`);
+            if (allowEpisodeOffset) {
+              offset = `${lastSearch.episode}:${episodeTitle}`;
+              log("info", `[system] [LogVar-API] Calculated episode offset for IP ${clientIp}: Query E${lastSearch.episode}, Selected ${episodeTitle} -> Offset ${offset} (Season ${lastSeason})`);
+            }
           }
         }
       }
